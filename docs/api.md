@@ -57,6 +57,15 @@ const { provenance } = require('@aikdna/studio-core');
 provenance.buildProvenance(project, files)    // → { studio_core, build_id, content_fingerprint, ... }
 ```
 
+### Governance
+
+```js
+const { governance } = require('@aikdna/studio-core');
+governance.computeRiskLevel(project)            // → 'R0'|'R1'|'R2'|'R3'
+governance.validateGovernance(project)          // → { valid, issues, risk_level, requires_expert_review }
+governance.generateKdnaCard(project, stats, provenance) // → KDNA Card object
+```
+
 ---
 
 ## Experimental API

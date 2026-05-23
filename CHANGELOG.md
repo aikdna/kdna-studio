@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.7.0 (2026-05-23)
+
+**Stable Release Candidate — Governance + Quality Closure**
+
+- Feynman score threshold: publishable_grade requires axiom Feynman ≥4/5, misunderstanding ≥3/5
+- Test Lab → card state closure: `applyTestResultsToCards()` transitions Locked→Tested on positive results
+- `markBreakingChange()` unified with `recommendVersionBump()`: core meaning changes detected as breaking
+- Governance module exported as Stable API
+- Compare test results factored into publishable_grade (>0 without_kdna_better triggers warning, <3 with_kdna_better triggers recommendation)
+
+## v0.6.1 (2026-05-23)
+
+**Governance Foundation**
+
+- `governance/` module: `computeRiskLevel()` (R0-R3), `validateGovernance()`, `generateKdnaCard()`
+- HIGH_RISK_KEYWORDS detection for medical/legal/financial/safety domains
+- Quality gate integration: governance checks block publishable_grade
+- Compile auto-generates `KDNA_CARD.json` when project.governance exists
+- KDNA main repo: GOVERNANCE.md, SAFETY.md, RISK_POLICY.md, KDNA_CARD_SPEC.md
+
+## v0.6.0 (2026-05-23)
+
+**Leadership Delta Demo**
+
+- Enhanced leadership-master example with full delta pipeline
+- Simulated compare report → `createJudgmentDeltaFromReport` → delta-report.md
+- Demonstrates 5 dimensions changed with D1-D7 scoring
+- `toArtifacts()` returns files + readme + provenance + readiness_raw
+- Third-party integration examples use `toArtifacts()`
+
+## v0.5.1 (2026-05-23)
+
+**Pipeline Fixes + Repository Governance**
+
+- Added `pipeline.toArtifacts()`: returns files, readme, provenance, readiness_raw
+- Added correct `.readiness` getter; deprecated `.readyness`
+- Updated third-party integration examples to use `toArtifacts()`
+- Added `CONTRIBUTING.md` with 5 non-negotiable rules and PR checklist
+- Added GitHub Actions CI: runs tests and examples on push/PR
+- Added `docs/integration-ready-beta.md` with capability matrix and architecture diagram
+
 ## v0.5.1 (2026-05-23)
 
 **Pipeline Fixes + Repository Governance**
