@@ -26,6 +26,8 @@ const provenance = require('./provenance');
 const quality = require('./quality');
 const testlab = require('./testlab');
 const versioning = require('./versioning');
+const feynman = require('./cards/feynman');
+const contradiction = require('./quality/contradiction');
 
 module.exports = {
   cards,
@@ -37,4 +39,6 @@ module.exports = {
   quality,
   testlab,
   versioning,
+  feynman,
+  contradiction,
 };

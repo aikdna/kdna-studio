@@ -101,4 +101,9 @@ module.exports = {
   unlockCard,
   getLockedCards,
   getPublishableCards,
+  // Feynman restatement (re-exported from feynman.js)
+  createFeynmanRestatement: require('./feynman').createFeynmanRestatement,
+  evaluateRestatementQuality: require('./feynman').evaluateRestatementQuality,
+  attachRestatementToLock: require('./feynman').attachRestatementToLock,
+  validateRestatementCard: require('./feynman').validateRestatementCard,
 };
