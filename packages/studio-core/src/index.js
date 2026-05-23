@@ -21,6 +21,7 @@ const cards = require('./cards');
 const compile = require('./compile');
 const evidence = require('./evidence');
 const packaging = require('./packaging');
+const pipeline = require('./pipeline');
 const project = require('./project');
 const provenance = require('./provenance');
 const quality = require('./quality');
@@ -32,17 +33,23 @@ const validateCards = require('./quality/validate-cards');
 const delta = require('./testlab/delta');
 
 module.exports = {
+  // Stable
+  project,
   cards,
   compile,
-  evidence,
-  packaging,
-  project,
-  provenance,
   quality,
+  provenance,
+  pipeline,
+
+  // Experimental
+  evidence,
   testlab,
-  versioning,
+  delta,
   feynman,
   contradiction,
   validateCards,
-  delta,
+  versioning,
+
+  // Internal
+  packaging,
 };
