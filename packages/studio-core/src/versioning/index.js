@@ -129,14 +129,19 @@ function bumpVersion(currentVersion, bumpType) {
 }
 
 function markBreakingChange(diff) {
+  const recommended = recommendVersionBump(diff);
   const removedAxioms = diff.removed.filter(c => c.type === 'axiom');
   const scopeWidening = diff.changed.filter(c => c.changes && 'applies_when' in c.changes &&
     (c.changes.applies_when.after || []).length > (c.changes.applies_when.before || []).length);
+  const coreMeaningChanges = diff.changed.filter(c => c.changes &&
+    ('one_sentence' in c.changes || 'full_statement' in c.changes));
+
   return {
-    breaking: removedAxioms.length > 0,
+    breaking: recommended === 'major',
     reason: removedAxioms.length > 0 ? `${removedAxioms.length} axiom(s) removed — breaking change` :
+      coreMeaningChanges.length > 0 ? `${coreMeaningChanges.length} core meaning change(s) — breaking change` :
       scopeWidening.length > 0 ? `${scopeWidening.length} scope widening(s) — may affect existing behavior` : null,
-    recommended_bump: recommendVersionBump(diff),
+    recommended_bump: recommended,
   };
 }
 

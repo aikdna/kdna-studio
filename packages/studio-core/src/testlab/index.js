@@ -42,6 +42,22 @@ function linkTestToCards(testCase, cardIds) {
   return testCase;
 }
 
+function applyTestResultsToCards(project, testCase) {
+  if (!testCase.result) return project;
+  const cards = project.cards || [];
+  for (const cardId of (testCase.linked_cards || [])) {
+    const card = cards.find(c => c.id === cardId);
+    if (!card) continue;
+    if (card.status === 'locked' && testCase.result === 'with_kdna_better') {
+      const { transitionCard } = require('../cards');
+      try {
+        transitionCard(card, 'tested', { by: testCase.rated_by || 'testlab', reason: `test ${testCase.id}: ${testCase.result}` });
+      } catch { /* card may have been already tested */ }
+    }
+  }
+  return project;
+}
+
 function generateTestSummary(project) {
   const tests = project.tests || [];
   const total = tests.length;

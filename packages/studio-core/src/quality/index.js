@@ -77,11 +77,41 @@ function computeReadiness(project) {
   const feynmanRatio = lockedAxioms.length > 0 ? lockedAxioms.filter(ax => ax.feynman_restatement).length / lockedAxioms.length : 0;
   const allFeynman = lockedAxioms.every(ax => ax.feynman_restatement) && lockedMisunderstandings.every(ms => !ms.locked || ms.feynman_restatement);
 
+  // Feynman quality threshold (v0.6.2)
+  const feynmanQuality = lockedAxioms.every(ax => {
+    if (!ax.feynman_restatement?.score) return false;
+    return ax.feynman_restatement.score.total >= 4;
+  });
+  const misunderstandingFeynmanQuality = lockedMisunderstandings.length === 0 ||
+    lockedMisunderstandings.every(ms => {
+      if (!ms.feynman_restatement?.score) return false;
+      return ms.feynman_restatement.score.total >= 3;
+    });
+  if (allFeynman && !feynmanQuality) {
+    warnings.push('Feynman: axiom restatements should score ≥4/5 for publishable grade');
+  }
+
+  // Compare test results requirements (v0.6.4)
+  const withKdnaBetter = ratedTests.filter(t => t.result === 'with_kdna_better').length;
+  const withoutKdnaBetter = ratedTests.filter(t => t.result === 'without_kdna_better').length;
+  if (ratedTests.length > 0 && withoutKdnaBetter > 0) {
+    warnings.push(`${withoutKdnaBetter} test(s) favored response WITHOUT KDNA — domain may not improve judgment`);
+  }
+  if (ratedTests.length > 0 && withKdnaBetter < 3 && ratedTests.length >= 5) {
+    warnings.push(`Only ${withKdnaBetter} tests favor KDNA — recommend ≥3 for confidence`);
+  }
+
   let grade = 'draft_grade';
   if (locked.length >= 3 && axiomsComplete && feynmanRatio >= 0.5) grade = 'human_controlled';
   if (grade === 'human_controlled' && ratedTests.length >= 5 && lockedSelfChecks.length >= 3) grade = 'tested_grade';
-  if (grade === 'tested_grade' && ratedTests.length >= 10 && lockedAxioms.length >= 3 && lockedSelfChecks.length >= 5 && blocking.length === 0 && allFeynman) {
+  if (grade === 'tested_grade' && ratedTests.length >= 10 && lockedAxioms.length >= 3 && lockedSelfChecks.length >= 5 && blocking.length === 0 && allFeynman && feynmanQuality && misunderstandingFeynmanQuality) {
     grade = 'publishable_grade';
+  }
+
+  // Downgrade if governance issues exist
+  if (grade === 'publishable_grade' && govResult && !govResult.valid) {
+    grade = 'tested_grade';
+    warnings.push('Governance checks not passed — publishable downgraded to tested');
   }
 
   return buildResult(grade, blocking, warnings, project, { feynmanRatio, allFeynman, governance: govResult });
