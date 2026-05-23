@@ -20,6 +20,7 @@
 const cards = require('./cards');
 const compile = require('./compile');
 const evidence = require('./evidence');
+const governance = require('./governance');
 const packaging = require('./packaging');
 const pipeline = require('./pipeline');
 const project = require('./project');
@@ -40,6 +41,7 @@ module.exports = {
   quality,
   provenance,
   pipeline,
+  governance,
 
   // Experimental
   evidence,

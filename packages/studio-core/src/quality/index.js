@@ -12,6 +12,7 @@
 
 const contradiction = require('./contradiction');
 const { validateAllCards } = require('./validate-cards');
+const { validateGovernance } = require('../governance');
 
 function computeReadiness(project) {
   const cards = project.cards || [];
@@ -24,6 +25,12 @@ function computeReadiness(project) {
 
   const blocking = [];
   const warnings = [];
+
+  // ── Governance check (v0.6.1) ───────────────────────────────────
+  const govResult = validateGovernance(project);
+  for (const issue of govResult.issues) {
+    (issue.severity === 'blocking' ? blocking : warnings).push(`Governance: ${issue.message}`);
+  }
 
   // ── Card validation integration (v0.3.2) ─────────────────────────
   const cardResults = validateAllCards(project);
@@ -77,7 +84,7 @@ function computeReadiness(project) {
     grade = 'publishable_grade';
   }
 
-  return buildResult(grade, blocking, warnings, project, { feynmanRatio, allFeynman });
+  return buildResult(grade, blocking, warnings, project, { feynmanRatio, allFeynman, governance: govResult });
 }
 
 function buildResult(grade, blocking, warnings, project, detail = {}) {
@@ -90,6 +97,7 @@ function buildResult(grade, blocking, warnings, project, detail = {}) {
     blocking,
     warnings,
     score: Math.max(0, 100 - blocking.length * 15 - warnings.length * 3),
+    governance: detail.governance || null,
     stats: {
       total_cards: (project.cards || []).length,
       locked_cards: lockedCount,

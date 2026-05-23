@@ -172,6 +172,14 @@ function compileDomain(project) {
   if (evolution) files['KDNA_Evolution.json'] = JSON.stringify(evolution, null, 2);
   files['kdna.json'] = JSON.stringify(compileManifest(project, files), null, 2);
 
+  // ── KDNA Card (governance metadata) ─────────────────────────────
+  if (project.governance) {
+    const { generateKdnaCard } = require('../governance');
+    const prov = require('../provenance').buildProvenance(project, files);
+    const kdnaCard = generateKdnaCard(project, {}, prov);
+    files['KDNA_CARD.json'] = JSON.stringify(kdnaCard, null, 2);
+  }
+
   const excludedCount = cards.filter(c => !c.locked && !['deprecated'].includes(c.status)).length;
 
   return {
