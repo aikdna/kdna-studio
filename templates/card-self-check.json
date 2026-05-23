@@ -1,0 +1,9 @@
+{
+  "id": "SC-001",
+  "type": "self_check",
+  "locked": false,
+  "human_lock": null,
+  "question": "",
+  "applies_when": [],
+  "expected": "yes"
+}

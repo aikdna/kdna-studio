@@ -1,0 +1,10 @@
+{
+  "id": "BD-001",
+  "type": "boundary",
+  "locked": false,
+  "human_lock": null,
+  "scope": "",
+  "out_of_scope": "",
+  "acceptable_exceptions": [],
+  "trigger_signal": ""
+}

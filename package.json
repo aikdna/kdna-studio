@@ -1,0 +1,38 @@
+{
+  "name": "@aikdna/kdna-studio",
+  "version": "0.1.0",
+  "description": "KDNA Studio — guided authoring environment for creating, testing, and publishing KDNA domain judgment packages.",
+  "private": false,
+  "type": "commonjs",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knowledge-dna/kdna-studio.git"
+  },
+  "homepage": "https://aikdna.com",
+  "bugs": {
+    "url": "https://github.com/knowledge-dna/kdna-studio/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "lint": "eslint src/ tests/",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "@aikdna/kdna-core": "^0.3.0"
+  },
+  "devDependencies": {
+    "@aikdna/kdna-cli": "^0.16.0"
+  },
+  "keywords": [
+    "kdna",
+    "kdna-studio",
+    "ai-agent",
+    "domain-cognition",
+    "knowledge-dna",
+    "authoring",
+    "judgment"
+  ]
+}

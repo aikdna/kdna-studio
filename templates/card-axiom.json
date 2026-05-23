@@ -1,0 +1,15 @@
+{
+  "id": "AX-001",
+  "type": "axiom",
+  "locked": false,
+  "human_lock": null,
+  "one_sentence": "",
+  "full_statement": "",
+  "why": "",
+  "applies_when": [],
+  "does_not_apply_when": [],
+  "failure_risk": null,
+  "confidence": "medium",
+  "evidence_type": "expert_judgment",
+  "feynman_restatement": ""
+}

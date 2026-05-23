@@ -1,0 +1,25 @@
+{
+  "kdna_spec": "1.0-rc",
+  "studio_version": "0.1.0",
+  "name": "my_domain",
+  "created": "",
+  "updated": "",
+  "author": {
+    "name": "",
+    "id": ""
+  },
+  "stages": {
+    "evidence_room": { "status": "pending", "files": [] },
+    "interview_room": { "status": "pending", "questions": [] },
+    "judgment_cards": { "status": "pending", "locked": 0, "total": 0 },
+    "test_lab": { "status": "pending", "evals_passed": 0, "evals_total": 0 },
+    "export": { "status": "pending" }
+  },
+  "cards": {
+    "axioms": [],
+    "ontology": [],
+    "misunderstandings": [],
+    "boundaries": [],
+    "self_checks": []
+  }
+}

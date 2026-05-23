@@ -1,0 +1,13 @@
+{
+  "id": "MS-001",
+  "type": "misunderstanding",
+  "locked": false,
+  "human_lock": null,
+  "wrong": "",
+  "correct": "",
+  "key_distinction": "",
+  "why": "",
+  "applies_when": [],
+  "does_not_apply_when": [],
+  "failure_risk": null
+}
