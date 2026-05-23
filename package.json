@@ -17,8 +17,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "lint": "eslint src/ tests/",
-    "test": "node --test tests/*.test.js"
+    "lint": "eslint packages/studio-core/src/ packages/studio-core/tests/",
+    "test": "npm test --prefix packages/studio-core"
   },
   "dependencies": {
     "@aikdna/kdna-core": "^0.3.0"
