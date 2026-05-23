@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.0.0 (2026-05-23)
+
+**Stable Authoring Kernel**
+
+KDNA Studio Core is now production-ready for third-party integration.
+
+- All SPEC-required fields in compile output (meta, file_count, reasoning_chains, measurement)
+- Compile output 100% passes `kdna validate`
+- Human Lock enforced at code level — no bypass possible
+- 4-grade quality gate (draft → human_controlled → tested → publishable)
+- Governance module: risk_level (R0-R3), validateGovernance, KDNA_CARD.json generation
+- Feynman score threshold (axiom >=4/5, misunderstanding >=3/5) for publishable
+- Test Lab → card state closure (Locked → Tested on positive results)
+- compare results bound to publishable_grade
+- Provenance: build_id + content_fingerprint + author tracking
+- Stable Pipeline API: `createStudioPipeline()` → `runAll()` → `toArtifacts()`
+- Examples: minimal-domain + leadership-master with delta demo
+- CI/CD: GitHub Actions runs tests + examples
+- 71 tests / 0 failures
+
 ## v0.7.0 (2026-05-23)
 
 **Stable Release Candidate — Governance + Quality Closure**
