@@ -13,6 +13,7 @@
 const contradiction = require('./contradiction');
 const { validateAllCards } = require('./validate-cards');
 const { validateGovernance } = require('../governance');
+const { computeI18nCoverage } = require('../i18n');
 
 function computeReadiness(project) {
   const cards = project.cards || [];
@@ -28,6 +29,15 @@ function computeReadiness(project) {
 
   // ── Governance check (v0.6.1) ───────────────────────────────────
   const govResult = validateGovernance(project);
+
+  // ── I18N check (v1.2.0) ─────────────────────────────────────────
+  const isOfficial = project.name?.startsWith('@aikdna/') || project.release?.official === true;
+  const i18nCoverage = computeI18nCoverage(project);
+  if (isOfficial && i18nCoverage.level === 'L0') {
+    blocking.push('I18N: official domains require at least L1 (KDNA_CARD.json + README in locales/zh-CN/)');
+  } else if (isOfficial && i18nCoverage.level === 'L1') {
+    warnings.push('I18N: L1 achieved (card + readme). Recommended: L2 overlay for publishable grade.');
+  }
   for (const issue of govResult.issues) {
     (issue.severity === 'blocking' ? blocking : warnings).push(`Governance: ${issue.message}`);
   }
@@ -114,7 +124,7 @@ function computeReadiness(project) {
     warnings.push('Governance checks not passed — publishable downgraded to tested');
   }
 
-  return buildResult(grade, blocking, warnings, project, { feynmanRatio, allFeynman, governance: govResult });
+  return buildResult(grade, blocking, warnings, project, { feynmanRatio, allFeynman, governance: govResult, i18n: i18nCoverage });
 }
 
 function buildResult(grade, blocking, warnings, project, detail = {}) {
@@ -128,6 +138,7 @@ function buildResult(grade, blocking, warnings, project, detail = {}) {
     warnings,
     score: Math.max(0, 100 - blocking.length * 15 - warnings.length * 3),
     governance: detail.governance || null,
+    i18n: detail.i18n || null,
     stats: {
       total_cards: (project.cards || []).length,
       locked_cards: lockedCount,
@@ -136,6 +147,7 @@ function buildResult(grade, blocking, warnings, project, detail = {}) {
       total_tests: (project.tests || []).length,
       rated_tests: ratedTests,
       feynman_ratio: detail.feynmanRatio !== undefined ? Math.round(detail.feynmanRatio * 100) + '%' : 'N/A',
+      i18n_level: detail.i18n?.level || 'L0',
     },
     next_step: grade === 'draft_grade' ? 'Lock at least 3 axioms with boundaries and 50% Feynman.' :
       grade === 'human_controlled' ? 'Add 5+ rated evals and 3+ self-checks.' :
