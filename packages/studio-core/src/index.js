@@ -21,6 +21,7 @@ const cards = require('./cards');
 const compile = require('./compile');
 const evidence = require('./evidence');
 const governance = require('./governance');
+const i18n = require('./i18n');
 const packaging = require('./packaging');
 const pipeline = require('./pipeline');
 const project = require('./project');
@@ -42,6 +43,7 @@ module.exports = {
   provenance,
   pipeline,
   governance,
+  i18n,
 
   // Experimental
   evidence,
