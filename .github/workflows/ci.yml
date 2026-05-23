@@ -29,6 +29,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install studio-core dependencies
+        run: npm install
+        working-directory: packages/studio-core
       - name: Install kdna-cli for validate/pack
         run: npm install -g @aikdna/kdna-cli
       - name: Run minimal-domain example
