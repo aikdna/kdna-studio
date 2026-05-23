@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+        working-directory: packages/studio-core
+      - name: Run tests
+        run: npm test
+        working-directory: packages/studio-core
+
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run minimal-domain example
+        run: node examples/minimal-domain/run.js
+      - name: Run leadership-master example
+        run: node examples/leadership-master/run.js

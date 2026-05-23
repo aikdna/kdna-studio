@@ -24,40 +24,23 @@ class StudioPipeline {
     this.results = {};
   }
 
-  validateProject() {
-    const r = validateProject(this.project);
-    this.results.project_valid = r;
-    return this;
-  }
-
-  validateCards() {
-    const issues = validateAllCards(this.project);
-    this.results.card_validation = { total: issues.length, issues };
-    return this;
-  }
-
-  computeReadiness() {
-    const r = computeReadiness(this.project);
-    this.results.readiness = r;
-    return this;
-  }
-
+  validateProject() { this.results.project_valid = validateProject(this.project); return this; }
+  validateCards() { this.results.card_validation = { total: validateAllCards(this.project).length, issues: validateAllCards(this.project) }; return this; }
+  computeReadiness() { this.results.readiness = computeReadiness(this.project); return this; }
+  
   compile() {
-    const r = compileDomain(this.project);
-    this.results.compile = r;
+    this.results.compile = compileDomain(this.project);
     return this;
   }
 
   generateReadme(readmeOptions = {}) {
-    const r = generateReadme(this.project, readmeOptions);
-    this.results.readme = r;
+    this.results.readme = generateReadme(this.project, readmeOptions);
     return this;
   }
 
   buildProvenance() {
     if (!this.results.compile) throw new Error('Must call compile() before buildProvenance()');
-    const r = buildProvenance(this.project, this.results.compile.files);
-    this.results.provenance = r;
+    this.results.provenance = buildProvenance(this.project, this.results.compile.files);
     return this;
   }
 
@@ -68,14 +51,21 @@ class StudioPipeline {
     this.compile();
     if (options.generateReadme !== false) this.generateReadme(options.readmeOptions);
     if (options.buildProvenance !== false) this.buildProvenance();
-    return this.toResult();
+    return this;
   }
 
+  // ── Getters ─────────────────────────────────────────────────────
+
+  /** @deprecated Use .readiness instead */
   get readyness() { return this.results.readiness; }
+  get readiness() { return this.results.readiness; }
   get compiled() { return this.results.compile; }
   get kdnaFiles() { return this.results.compile?.files || {}; }
   get isPublishable() { return this.results.readiness?.publishable === true; }
 
+  // ── Output methods ──────────────────────────────────────────────
+
+  /** Flat summary for UI display */
   toResult() {
     return {
       project_valid: this.results.project_valid?.valid === true,
@@ -91,6 +81,19 @@ class StudioPipeline {
       blocking: this.results.readiness?.blocking || [],
       warnings: this.results.readiness?.warnings || [],
       next_step: this.results.readiness?.next_step || '',
+    };
+  }
+
+  /** Full artifacts: files + readme + provenance + summary */
+  toArtifacts() {
+    const result = this.toResult();
+    return {
+      ...result,
+      files: this.results.compile?.files || {},
+      readme: this.results.readme || '',
+      provenance: this.results.provenance || null,
+      readiness_raw: this.results.readiness || null,
+      card_validation_raw: this.results.card_validation || null,
     };
   }
 }

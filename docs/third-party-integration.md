@@ -114,8 +114,11 @@ import { createStudioPipeline } from '@aikdna/studio-core';
 function CompileButton({ project }) {
   const handleCompile = () => {
     const pipeline = createStudioPipeline(project);
-    const result = pipeline.runAll();
-    downloadFiles(result.files);
+    const result = pipeline.runAll().toResult();
+    const artifacts = pipeline.toArtifacts();
+    console.log(`Compiled: ${result.kdna_files} files, grade: ${result.readiness}`);
+    // artifacts.files → { 'KDNA_Core.json': '...', ... }
+    // artifacts.readme → generated README text
   };
   return <button onClick={handleCompile}>Compile</button>;
 }
