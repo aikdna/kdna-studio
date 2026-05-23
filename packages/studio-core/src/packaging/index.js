@@ -1,30 +1,31 @@
 /**
- * Packaging adapter — call kdna-cli for pack, verify, sign, publish operations.
+ * Packaging adapter — secure delegation to kdna-cli.
  *
- * Studio Core does not re-implement these. It provides structured interfaces
- * that delegate to kdna-cli subprocess calls.
+ * All subprocess calls use execFileSync (not execSync with string interpolation)
+ * to prevent command injection. Studio Core calls kdna-cli as the canonical
+ * implementation of pack/verify/sign/publish operations.
  */
 
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const path = require('path');
 
 function packDomain(domainDir, outputDir = null) {
   const args = ['pack', domainDir];
   if (outputDir) args.push('--output', outputDir);
-  const result = execSync(`kdna ${args.join(' ')}`, { encoding: 'utf8' });
+  const result = execFileSync('kdna', args, { encoding: 'utf8', timeout: 60000 });
   return { success: true, output: result.trim() };
 }
 
 function packEncryptedDomain(domainDir, licensePath, outputDir = null) {
   const args = ['pack', domainDir, '--encrypt', '--license', licensePath];
   if (outputDir) args.push('--output', outputDir);
-  const result = execSync(`kdna ${args.join(' ')}`, { encoding: 'utf8' });
+  const result = execFileSync('kdna', args, { encoding: 'utf8', timeout: 60000 });
   return { success: true, output: result.trim() };
 }
 
 function verifyDomain(domainPath) {
   try {
-    const result = execSync(`kdna verify ${domainPath} --json`, { encoding: 'utf8' });
+    const result = execFileSync('kdna', ['verify', domainPath, '--json'], { encoding: 'utf8', timeout: 30000 });
     return JSON.parse(result);
   } catch (e) {
     const stdout = (e.stdout || '').toString();
@@ -32,23 +33,28 @@ function verifyDomain(domainPath) {
   }
 }
 
-function inspectContainer(filePath) {
+function validateDomain(domainPath) {
   try {
-    const result = execSync(`kdna inspect ${filePath} --json`, { encoding: 'utf8' });
-    return JSON.parse(result);
-  } catch {
-    return null;
+    const result = execFileSync('kdna', ['validate', domainPath], { encoding: 'utf8', timeout: 30000 });
+    return { success: true, output: result.trim() };
+  } catch (e) {
+    return { success: false, error: e.message, stderr: (e.stderr || '').toString() };
   }
 }
 
-function signDomain(domainDir, identityDir = null) {
-  // Uses kdna publish --check for signing
-  const args = ['publish', '--check', domainDir];
+function inspectContainer(filePath) {
   try {
-    const result = execSync(`kdna ${args.join(' ')}`, { encoding: 'utf8', env: { ...process.env } });
+    const result = execFileSync('kdna', ['inspect', filePath, '--json'], { encoding: 'utf8', timeout: 15000 });
+    return JSON.parse(result);
+  } catch { return null; }
+}
+
+function signDomain(domainDir) {
+  try {
+    const result = execFileSync('kdna', ['publish', '--check', domainDir], { encoding: 'utf8', timeout: 30000 });
     return { success: true, output: result.trim() };
   } catch (e) {
-    return { success: false, error: e.stderr?.toString() || e.message };
+    return { success: false, error: (e.stderr || '').toString() || e.message };
   }
 }
 
@@ -56,18 +62,14 @@ function generateLicense(domain, issuedTo, savePath = null) {
   const args = ['license', 'generate', domain, '--to', issuedTo];
   if (savePath) args.push('--save', savePath);
   try {
-    const result = execSync(`kdna ${args.join(' ')}`, { encoding: 'utf8' });
+    const result = execFileSync('kdna', args, { encoding: 'utf8', timeout: 15000 });
     return { success: true, output: result.trim() };
   } catch (e) {
-    return { success: false, error: e.stderr?.toString() || e.message };
+    return { success: false, error: (e.stderr || '').toString() || e.message };
   }
 }
 
 module.exports = {
-  packDomain,
-  packEncryptedDomain,
-  verifyDomain,
-  inspectContainer,
-  signDomain,
-  generateLicense,
+  packDomain, packEncryptedDomain, verifyDomain, validateDomain,
+  inspectContainer, signDomain, generateLicense,
 };

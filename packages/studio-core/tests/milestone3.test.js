@@ -124,9 +124,9 @@ describe('Versioning', () => {
     assert.equal(recommendVersionBump(diff), 'minor');
   });
 
-  test('recommendVersionBump: PATCH for field changes', () => {
-    const diff = { added: [], removed: [], changed: [{}], summary: { added_count: 0, removed_count: 0, changed_count: 1 } };
-    assert.equal(recommendVersionBump(diff), 'minor');
+  test('recommendVersionBump: MINOR for changed fields', () => {
+    const diff = { added: [], removed: [], changed: [{ type: 'axiom', changes: { one_sentence: { before: 'old', after: 'new' } } }], summary: { added_count: 0, removed_count: 0, changed_count: 1 } };
+    assert.equal(recommendVersionBump(diff), 'major'); // axiom core meaning change → major
   });
 
   test('bumpVersion increments correctly', () => {
