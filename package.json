@@ -1,6 +1,6 @@
 {
   "name": "@aikdna/kdna-studio",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "KDNA Studio — guided authoring environment for creating, testing, and publishing KDNA domain judgment packages.",
   "private": false,
   "type": "commonjs",
