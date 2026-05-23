@@ -1,6 +1,6 @@
 {
   "name": "@aikdna/studio-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "KDNA Studio Core — pure logic library for authoring, validating, and compiling KDNA domain judgment packages.",
   "type": "commonjs",
   "main": "src/index.js",
