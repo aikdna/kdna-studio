@@ -28,6 +28,7 @@ const testlab = require('./testlab');
 const versioning = require('./versioning');
 const feynman = require('./cards/feynman');
 const contradiction = require('./quality/contradiction');
+const validateCards = require('./quality/validate-cards');
 
 module.exports = {
   cards,
@@ -41,4 +42,5 @@ module.exports = {
   versioning,
   feynman,
   contradiction,
+  validateCards,
 };
