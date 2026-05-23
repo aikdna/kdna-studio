@@ -1,71 +1,125 @@
-# KDNA Studio
+# KDNA Studio Core
 
-**Guided authoring environment for creating, testing, and publishing KDNA domain judgment packages.**
+**KDNA Studio is an open-source authoring core for turning human judgment into valid, testable, packageable KDNA domain assets.**
 
-KDNA Studio transforms expert knowledge into structured, testable KDNA domains through a five-stage workflow. It is the authoring counterpart to [kdna-cli](https://github.com/knowledge-dna/kdna-cli) — CLI handles runtime and distribution; Studio handles creation and quality.
+It is not a one-click generator. It is a judgment extraction, validation, locking, testing, and publishing engine.
 
-Part of the [KDNA](https://github.com/knowledge-dna/KDNA) ecosystem.
+KDNA Studio 是一个开源创作内核，用于把人的领域判断转化为合法、可测试、可打包、可发布的 KDNA 认知资产。它不是一键生成器，而是判断提取、校验、锁定、测试与发布引擎。
 
-## Philosophy
+---
 
-Writing KDNA JSON by hand is error-prone. Studio replaces raw JSON editing with:
+## Why Open Source
 
-- **Interview-driven extraction** — the agent interviews the domain expert, not the other way around
-- **Judgment Cards** — each axiom, misunderstanding, and boundary is a draggable, lockable card
-- **Test-first quality** — every card must pass eval cases before lock
-- **Human Judgment Lock** — locked cards can only be changed with explicit justification
+.kdna should not only be creatable by the official KDNA Studio.
+
+Any third-party app, Mac App, web tool, or enterprise internal system — as long as it integrates this open-source Studio Core — should produce .kdna that is correct, verifiable, loadable, and distributable.
+
+**The ecosystem principle:**
+
+| Layer | Role | License |
+|-------|------|---------|
+| **KDNA Studio Core** | Guarantee .kdna correctness for everyone | Open Source (Apache-2.0) |
+| **KDNA Studio SDK** | Integration adapters for apps | Open Source |
+| **Official KDNA Studio** | Flagship authoring experience | Commercial OK |
+| **Third-party Apps** | Any app built on Studio Core | Commercial OK |
+
+## What Studio Core Is NOT
+
+- **Not a one-click domain generator** — AI proposes candidates; humans confirm judgment
+- **Not a prompt engineering tool** — It encodes judgment structure, not phrasing
+- **Not a KDNAChat replacement** — Studio is for authoring; Chat is for consumption
+- **Not a UI framework** — Core is pure logic; UI is an implementation choice
+
+## Architecture
+
+```
+Third-party Apps  ─┬─  KDNAChat  ─┬─  Official Studio
+                   │              │
+         KDNA Studio SDK (integration adapters)
+                   │
+         KDNA Studio Core (pure logic)
+                   │
+    ┌──────────────┼──────────────┐
+    │              │              │
+  kdna-cli    kdna-core      KDNA SPEC
+```
+
+Studio Core provides the canonical implementation of:
+- **Project Model** — studio.project.json structure and lifecycle
+- **Card State Machine** — Draft → Revised → Locked → Tested → Published → Deprecated
+- **Human Lock** — Mandatory human confirmation of every judgment card
+- **Feynman Restatement** — Verify understanding, not just agreement
+- **Quality Gates** — Four readiness grades with clear pass/fail criteria
+- **Compile Pipeline** — Locked cards → valid KDNA_Core.json / KDNA_Patterns.json
+- **Provenance** — Every generated .kdna carries its authoring history
+- **Test Lab** — A/B comparison proving judgment improvement
 
 ## Five-Stage Workflow
 
 ```
-Stage 1: Evidence Room    →  Gather raw material (docs, transcripts, notes)
-Stage 2: Interview Room   →  Extract explicit judgment from implicit expertise
-Stage 3: Judgment Cards   →  Structure into lockable KDNA elements
-Stage 4: Test Lab         →  Validate against real cases (A/B comparison)
-Stage 5: Export           →  Compile to .kdna / .kdnae container
+Stage 1: Evidence Room   →  Import raw material; extract candidate patterns
+Stage 2: Interview Room  →  AI interviews the expert; extracts judgment
+Stage 3: Judgment Cards  →  Structure into lockable, verifiable cards
+Stage 4: Test Lab        →  Validate with A/B comparison against LLM
+Stage 5: Export          →  Compile → validate → pack → sign → publish
 ```
+
+At every stage, the human is the authority. AI is only an interviewer, challenger, compiler, and evaluator — never the judge.
 
 ## Quick Start
 
 ```bash
-# From kdna-cli:
-kdna studio scaffold my_domain        # Create Studio project
-kdna studio compile project.json      # Compile locked cards → KDNA domain
-kdna studio readiness project.json    # Show readiness card
+# Create a Studio project
+kdna studio scaffold my_domain
 
-# Full workflow:
-# 1. Scaffold → 2. Author cards → 3. Lock → 4. Compile → 5. Publish
+# Author judgment cards (edit card JSON files)
+# Lock cards when ready: human_lock.by, human_lock.statement required
+
+# Check readiness
+kdna studio readiness my_domain/studio.project.json
+
+# Compile locked cards → KDNA domain
+kdna studio compile my_domain/studio.project.json --out ./output/
+
+# Validate the compiled domain
+kdna validate ./output/
 ```
 
-## Project Structure
+## Repository Structure
 
 ```
-my_domain/
-  studio.project.json      # Project manifest
-  cards/
-    axioms/                # One JSON per axiom
-    ontology/              # Concepts and boundaries
-    misunderstandings/     # Common errors
-    boundaries/            # Scope and out-of-scope
-    self_checks/           # Yes/no answerable questions
-  evals/                   # Test cases (before/after pairs)
-  exports/                 # Compiled output directory
-```
-
-## Development
-
-```bash
-git clone https://github.com/knowledge-dna/kdna-studio.git
-cd kdna-studio
-npm install
-npm test
+kdna-studio/
+  README.md
+  packages/
+    studio-core/         # Pure logic — no UI dependencies
+      src/
+        project/         # Project CRUD, validation
+        evidence/        # Evidence import, span extraction
+        cards/           # Card state machine, lock, Feynman
+        quality/         # Quality gates, readiness checks
+        compile/         # Compile locked cards → KDNA JSON
+        testlab/         # Test case model, comparison
+        provenance/      # Build ID, fingerprints, audit trail
+        packaging/       # Pack .kdna / .kdnae adapters
+        versioning/      # Judgment diff, changelog
+      tests/
+    studio-schemas/      # JSON Schemas for all data models
+      studio.project.schema.json
+      judgment-card.schema.json
+      evidence.schema.json
+  docs/
+    product-principles.md
+    architecture.md
+    judgment-loop.md
+    card-state-machine.md
+    human-lock.md
 ```
 
 ## Related
 
 - [KDNA SPEC](https://github.com/knowledge-dna/KDNA) — Protocol specification
-- [kdna-cli](https://github.com/knowledge-dna/kdna-cli) — CLI runtime
-- [KDNA Registry](https://github.com/knowledge-dna/kdna-registry) — Domain distribution
+- [kdna-cli](https://github.com/knowledge-dna/kdna-cli) — CLI runtime and distribution
+- [kdna-registry](https://github.com/knowledge-dna/kdna-registry) — Domain catalog
 - [aikdna.com](https://aikdna.com) — Website
 
 ## License

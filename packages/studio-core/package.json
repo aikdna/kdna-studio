@@ -1,0 +1,25 @@
+{
+  "name": "@aikdna/studio-core",
+  "version": "0.1.0",
+  "description": "KDNA Studio Core — pure logic library for authoring, validating, and compiling KDNA domain judgment packages.",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knowledge-dna/kdna-studio.git",
+    "directory": "packages/studio-core"
+  },
+  "dependencies": {
+    "@aikdna/kdna-core": "^0.3.0"
+  },
+  "peerDependencies": {
+    "@aikdna/kdna-cli": ">=0.16.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}
