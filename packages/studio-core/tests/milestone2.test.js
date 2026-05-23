@@ -221,8 +221,8 @@ describe('Full Compile', () => {
     const result = compileDomain(project);
     const evo = JSON.parse(result.files['KDNA_Evolution.json']);
     assert.ok(evo.stages.length > 0);
-    assert.equal(evo.measurements[0].metric, 'locked_axioms');
-    assert.equal(evo.measurements[0].value, 1);
+    assert.equal(evo.measurement[0].what, 'locked_axioms');
+    assert.equal(evo.measurement[0].threshold, '1');
   });
 });
 

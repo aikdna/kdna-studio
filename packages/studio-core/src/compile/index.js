@@ -51,7 +51,8 @@ function compilePatterns(cards, project) {
     wrong: c.fields?.wrong || '',
     correct: c.fields?.correct || '',
     key_distinction: c.fields?.key_distinction || '',
-    failure_risk: c.fields?.failure_risk || null,
+    why: c.fields?.why || `What bad judgment results from believing "${(c.fields?.wrong || '').slice(0, 40)}"`,
+    failure_risk: c.fields?.failure_risk || 'No specific failure risk declared',
     applies_when: c.fields?.applies_when || [],
     does_not_apply_when: c.fields?.does_not_apply_when || [],
   }));
@@ -95,7 +96,7 @@ function compileReasoning(cards, project) {
     meta: makeMeta(project),
     reasoning_chains: lockedAxioms.map(ax => ({
       id: `chain_${ax.id}`,
-      from: ax.fields?.one_sentence || '',
+      one_sentence: ax.fields?.one_sentence || '',
       logic: [ax.fields?.full_statement || ''],
       so_what: ax.fields?.why || 'Agent judgment changes when this axiom is loaded.',
     })),
@@ -112,22 +113,27 @@ function compileEvolution(cards, project) {
     if (seenAxioms.has(card.id)) continue;
     seenAxioms.add(card.id);
     for (const entry of (card.audit_log || [])) {
-      if (entry.event === 'locked' || entry.event === 'published') {
-        stages.push({ card_id: card.id, event: entry.event, at: entry.at, by: entry.by });
+      if (entry.event === 'locked') {
+        stages.push({
+          id: `stage_${card.id}`,
+          name: card.fields?.one_sentence || card.fields?.question || card.id,
+          description: `Card ${card.id} was locked by ${entry.by} at ${entry.at}. Type: ${card.type}.`,
+          indicators: [`${card.type} card locked`, 'Human judgment confirmed'],
+        });
       }
     }
   }
 
   return {
     meta: makeMeta(project),
-    stages: stages.sort((a, b) => a.at.localeCompare(b.at)),
-    capability_layers: [
-      { layer: 1, name: 'Foundation', description: 'Core axioms and patterns established.' },
+    stages: stages.sort((a, b) => a.id.localeCompare(b.id)),
+    evolution_layers: [
+      { id: 'layer_1', name: 'Foundation', capability: 'Core axioms and patterns established.', from_stage: stages[0]?.id || 'none', to_stage: stages[stages.length - 1]?.id || 'none' },
     ],
-    measurements: [
-      { metric: 'locked_axioms', value: lockedCards.filter(c => c.type === 'axiom').length },
-      { metric: 'locked_misunderstandings', value: lockedCards.filter(c => c.type === 'misunderstanding').length },
-      { metric: 'self_checks', value: lockedCards.filter(c => c.type === 'self_check').length },
+    measurement: [
+      { id: 'meas_axioms', what: 'locked_axioms', how: 'Count of locked axiom cards', threshold: `${lockedCards.filter(c => c.type === 'axiom').length}` },
+      { id: 'meas_misunderstandings', what: 'locked_misunderstandings', how: 'Count of locked misunderstanding cards', threshold: `${lockedCards.filter(c => c.type === 'misunderstanding').length}` },
+      { id: 'meas_self_checks', what: 'self_checks', how: 'Count of locked self-check cards', threshold: `${lockedCards.filter(c => c.type === 'self_check').length}` },
     ],
   };
 }
