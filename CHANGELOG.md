@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.5.1 (2026-05-23)
+
+**Pipeline Fixes + Repository Governance**
+
+- Added `pipeline.toArtifacts()`: returns files, readme, provenance, readiness_raw
+- Added correct `.readiness` getter; deprecated `.readyness`
+- Updated third-party integration examples to use `toArtifacts()`
+- Added `CONTRIBUTING.md` with 5 non-negotiable rules and PR checklist
+- Added GitHub Actions CI: runs tests and examples on push/PR
+- Added `docs/integration-ready-beta.md` with capability matrix and architecture diagram
+
 ## v0.5.0 (2026-05-23)
 
 **Integration-Ready Beta**
