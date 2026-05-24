@@ -11,9 +11,9 @@ const { createTestCase, recordHumanRating } = require('../src/testlab');
 const { buildProvenance } = require('../src/provenance');
 
 function makeLockedCard(type, fields = {}, id = null) {
-  const card = createCard(type, fields, id);
-  transitionCard(card, 'revised', { by: 'tester' });
-  lockCard(card, {
+  let card = createCard(type, fields, id);
+  card = transitionCard(card, 'revised', { by: 'tester' });
+  card = lockCard(card, {
     by: 'tester',
     statement: 'I confirm this judgment.',
     checked: { applies_when: true, does_not_apply_when: true, failure_risk: true },
@@ -120,13 +120,13 @@ describe('Quality Gates', () => {
 
 describe('Card Validation', () => {
   test('flags slogan-like axiom', () => {
-    const card = createCard('axiom', { one_sentence: 'Trust is important for teams.', full_statement: 'Trust matters.' });
+    let card = createCard('axiom', { one_sentence: 'Trust is important for teams.', full_statement: 'Trust matters.' });
     const issues = validateCard(card);
     assert.ok(issues.some(i => i.type === 'slogan' || i.type === 'too_short'));
   });
 
   test('flags SOP-like axiom', () => {
-    const card = createCard('axiom', {
+    let card = createCard('axiom', {
       one_sentence: 'First, you should always remember to follow these steps.',
       full_statement: 'The process is to first identify the problem.',
     });
@@ -135,7 +135,7 @@ describe('Card Validation', () => {
   });
 
   test('flags straw-man misunderstanding', () => {
-    const card = createCard('misunderstanding', {
+    let card = createCard('misunderstanding', {
       wrong: 'Some people say it is commonly thought that quality matters.',
       correct: 'Actually it does matter.',
       key_distinction: 'Quality is about getting things right the first time.',
@@ -145,7 +145,7 @@ describe('Card Validation', () => {
   });
 
   test('flags generic self_check', () => {
-    const card = createCard('self_check', { question: 'Is this good?' });
+    let card = createCard('self_check', { question: 'Is this good?' });
     const issues = validateCard(card);
     assert.ok(issues.some(i => i.type === 'generic' || i.type === 'vague'));
   });
@@ -216,7 +216,7 @@ describe('Full Compile', () => {
 
   test('produces Evolution from audit logs', () => {
     const project = createProject('test');
-    const card = makeLockedCard('axiom', { one_sentence: 'Evolution test.', full_statement: 'FS.', why: 'B.', applies_when: ['x'], does_not_apply_when: ['y'], failure_risk: 'r' });
+    let card = makeLockedCard('axiom', { one_sentence: 'Evolution test.', full_statement: 'FS.', why: 'B.', applies_when: ['x'], does_not_apply_when: ['y'], failure_risk: 'r' });
     project.cards = [card];
     const result = compileDomain(project);
     const evo = JSON.parse(result.files['KDNA_Evolution.json']);

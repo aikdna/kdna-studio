@@ -12,9 +12,9 @@ const { createTestCase, recordHumanRating, linkTestToCards, generateTestSummary,
 const { buildProvenance } = require('../src/provenance');
 
 function makeLockedCard(type, fields = {}, id = null) {
-  const card = createCard(type, fields, id);
-  transitionCard(card, 'revised', { by: 'tester' });
-  lockCard(card, {
+  let card = createCard(type, fields, id);
+  card = transitionCard(card, 'revised', { by: 'tester' });
+  card = lockCard(card, {
     by: 'tester',
     statement: 'I confirm this judgment represents my understanding.',
     checked: { applies_when: true, does_not_apply_when: true, failure_risk: true },
@@ -26,7 +26,7 @@ function makeLockedCard(type, fields = {}, id = null) {
 
 describe('Feynman Restatement', () => {
   test('createFeynmanRestatement scores a good restatement', () => {
-    const card = makeLockedCard('axiom', {
+    let card = makeLockedCard('axiom', {
       one_sentence: 'Price objections are certainty deficits, not price problems.',
     });
     const text = 'When a customer says the price is too high, the agent should not immediately offer a discount. Instead, figure out which type of uncertainty is blocking them — value, risk, responsibility, or process. For example, if a client hesitates, ask what they are worried about rather than lowering the price.';
@@ -40,7 +40,7 @@ describe('Feynman Restatement', () => {
   });
 
   test('createFeynmanRestatement detects just-repeating', () => {
-    const card = makeLockedCard('axiom', {
+    let card = makeLockedCard('axiom', {
       one_sentence: 'Clarity is the only thing a writer needs to worry about when creating content.',
     });
     const text = 'Clarity is the only thing a writer needs to worry about when creating content for readers.';
@@ -49,7 +49,7 @@ describe('Feynman Restatement', () => {
   });
 
   test('attachRestatementToLock links restatement to card', () => {
-    const card = makeLockedCard('axiom', { one_sentence: 'Test.' });
+    let card = makeLockedCard('axiom', { one_sentence: 'Test.' });
     const fr = createFeynmanRestatement(card, 'A simple explanation with an example and a boundary: this only works when there is clear evidence, not when the situation is ambiguous.');
     attachRestatementToLock(card, fr);
     assert.ok(card.feynman_restatement);
@@ -57,7 +57,7 @@ describe('Feynman Restatement', () => {
   });
 
   test('validateRestatementCard flags missing Feynman', () => {
-    const card = makeLockedCard('axiom', { one_sentence: 'Test' });
+    let card = makeLockedCard('axiom', { one_sentence: 'Test' });
     const issues = validateRestatementCard(card);
     assert.ok(issues.length > 0);
     assert.ok(issues.some(i => i.type === 'missing_feynman'));
@@ -68,7 +68,7 @@ describe('Feynman Restatement', () => {
 
 describe('Contradiction Check', () => {
   test('detects missing does_not_apply_when on locked axiom', () => {
-    const card = makeLockedCard('axiom', {
+    let card = makeLockedCard('axiom', {
       one_sentence: 'Always trust the data.',
       full_statement: 'When making decisions, always defer to data.',
       applies_when: ['when data is available'],
@@ -81,7 +81,7 @@ describe('Contradiction Check', () => {
   });
 
   test('detects over-generalized language', () => {
-    const card = makeLockedCard('axiom', {
+    let card = makeLockedCard('axiom', {
       one_sentence: 'Never accept user input without validation.',
       full_statement: 'All user input must always be validated before processing.',
       applies_when: ['when receiving input'],
@@ -92,7 +92,7 @@ describe('Contradiction Check', () => {
   });
 
   test('detects not-a-question self-check', () => {
-    const card = makeLockedCard('self_check', {
+    let card = makeLockedCard('self_check', {
       question: 'The response should be helpful',
     });
     const issues = detectContradictions([card]);
@@ -101,7 +101,7 @@ describe('Contradiction Check', () => {
   });
 
   test('detects generic self-check wording', () => {
-    const card = makeLockedCard('self_check', {
+    let card = makeLockedCard('self_check', {
       question: 'Is this response good enough?',
     });
     const issues = detectContradictions([card]);
@@ -110,7 +110,7 @@ describe('Contradiction Check', () => {
   });
 
   test('summarizeContradictions provides counts', () => {
-    const card = makeLockedCard('axiom', {
+    let card = makeLockedCard('axiom', {
       one_sentence: 'Always test.',
       full_statement: 'Test.',
       applies_when: ['when testing'],
@@ -151,7 +151,7 @@ describe('Evidence', () => {
   });
 
   test('linkEvidenceToCard adds ref', () => {
-    const card = createCard('axiom', {});
+    let card = createCard('axiom', {});
     const ev = createEvidenceEntry('text', 'T', 'content');
     extractSpan(ev, 0, 10);
     linkEvidenceToCard(ev, ev.spans[0].id, card);
@@ -259,8 +259,8 @@ describe('Full Authoring Workflow', () => {
     // Stage 3: Lock cards
     const locked = [];
     for (const card of [ax1, ms1, sc1]) {
-      transitionCard(card, 'revised', { by: 'expert_001' });
-      lockCard(card, {
+      card = transitionCard(card, 'revised', { by: 'expert_001' });
+      card = lockCard(card, {
         by: 'expert_001',
         statement: 'This judgment represents my 15 years of leadership coaching experience.',
         checked: { applies_when: true, does_not_apply_when: true, failure_risk: true },

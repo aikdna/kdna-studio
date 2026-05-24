@@ -7,9 +7,9 @@ const { parseCompareOutput, createJudgmentDelta, compareDeltas, formatDeltaMarkd
 const { diffProjects, recommendVersionBump, generateChangelog, bumpVersion, markBreakingChange } = require('../src/versioning');
 
 function makeLockedCard(type, fields, id) {
-  const card = createCard(type, fields, id);
-  transitionCard(card, 'revised', { by: 'tester' });
-  lockCard(card, { by: 'tester', statement: 'ok', checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
+  let card = createCard(type, fields, id);
+  card = transitionCard(card, 'revised', { by: 'tester' });
+  card = lockCard(card, { by: 'tester', statement: 'ok', checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
   return card;
 }
 

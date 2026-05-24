@@ -21,9 +21,9 @@ const { compileDomain } = require('../src/compile');
 const { buildProvenance } = require('../src/provenance');
 
 function makeLockedCard(type, fields, id) {
-  const card = createCard(type, fields, id);
-  transitionCard(card, 'revised', { by: 'expert' });
-  lockCard(card, { by: 'expert', statement: 'I confirm this judgment.', checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
+  let card = createCard(type, fields, id);
+  card = card = transitionCard(card, 'revised', { by: 'expert' });
+  card = card = lockCard(card, { by: 'expert', statement: 'I confirm this judgment.', checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
   return card;
 }
 
