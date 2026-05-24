@@ -117,7 +117,7 @@ kdna-studio/
 
 ## Related
 
-- [KDNA SPEC](https://github.com/aikdna/KDNA) — Protocol specification
+- [KDNA SPEC](https://github.com/aikdna/kdna) — Protocol specification
 - [kdna-cli](https://github.com/aikdna/kdna-cli) — CLI runtime and distribution
 - [kdna-registry](https://github.com/aikdna/kdna-registry) — Domain catalog
 - [aikdna.com](https://aikdna.com) — Website
