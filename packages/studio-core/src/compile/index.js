@@ -144,7 +144,7 @@ function compileManifest(project, files) {
     kdna_spec: '1.0-rc',
     name: project.name,
     version: (project.release && project.release.version) || '0.1.0',
-    status: 'experimental',
+    status: (project.release && project.release.status) || 'experimental',
     access: (project.release && project.release.access) || 'open',
     author: project.author || { name: '', id: '' },
     description: project.release?.description || project.name,

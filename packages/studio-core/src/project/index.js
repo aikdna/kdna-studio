@@ -12,7 +12,7 @@ const projectSchema = require('../../../studio-schemas/studio.project.schema.jso
 function createProject(name, type = 'domain', options = {}) {
   const project = {
     studio_version: '0.1.0',
-    project_id: `studio_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+    project_id: `studio_${require('crypto').randomUUID()}`,
     name,
     type,
     created: new Date().toISOString().slice(0, 10),
@@ -34,8 +34,19 @@ function createProject(name, type = 'domain', options = {}) {
 }
 
 function loadProject(json) {
-  const project = typeof json === 'string' ? JSON.parse(json) : json;
-  // TODO: validate against schema
+  let project;
+  try {
+    project = typeof json === 'string' ? JSON.parse(json) : json;
+  } catch (e) {
+    throw new Error('loadProject: invalid JSON input — ' + e.message);
+  }
+  if (!project || typeof project !== 'object' || Array.isArray(project)) {
+    throw new Error('loadProject: input is not a valid project object');
+  }
+  const result = validateProject(project);
+  if (!result.valid) {
+    throw new Error('loadProject: project validation failed:\n  - ' + result.issues.join('\n  - '));
+  }
   return project;
 }
 
@@ -45,16 +56,161 @@ function saveProject(project) {
 }
 
 function validateProject(project) {
-  // TODO: full schema validation using ajv + studio.project.schema.json
   const issues = [];
-  if (!project.name) issues.push('Missing project name');
-  if (!project.type || !['domain', 'cluster'].includes(project.type)) issues.push('Invalid project type');
-  if (!Array.isArray(project.cards)) issues.push('cards must be an array');
+
+  function check(cond, msg) { if (!cond) issues.push(msg); }
+
+  function checkType(val, expected, path) {
+    if (expected === 'string' && typeof val !== 'string') issues.push(path + ': expected string, got ' + typeof val);
+    else if (expected === 'number' && typeof val !== 'number') issues.push(path + ': expected number, got ' + typeof val);
+    else if (expected === 'integer' && (!Number.isInteger(val) || typeof val !== 'number')) issues.push(path + ': expected integer, got ' + typeof val);
+    else if (expected === 'boolean' && typeof val !== 'boolean') issues.push(path + ': expected boolean, got ' + typeof val);
+    else if (expected === 'object' && (typeof val !== 'object' || val === null || Array.isArray(val))) issues.push(path + ': expected object, got ' + (Array.isArray(val) ? 'array' : typeof val));
+    else if (expected === 'array' && !Array.isArray(val)) issues.push(path + ': expected array, got ' + typeof val);
+  }
+
+  // Required top-level fields
+  if (!project || typeof project !== 'object' || Array.isArray(project)) {
+    return { valid: false, issues: ['project must be a non-null object'] };
+  }
+
+  const required = projectSchema.required || [];
+  for (const field of required) {
+    if (!(field in project)) issues.push('Missing required field: ' + field);
+  }
+
+  // studio_version
+  if (project.studio_version !== undefined) {
+    checkType(project.studio_version, 'string', 'studio_version');
+    if (typeof project.studio_version === 'string') {
+      const verPattern = projectSchema.properties.studio_version.pattern;
+      if (verPattern && !new RegExp(verPattern).test(project.studio_version)) {
+        issues.push('studio_version: invalid version format, expected semver (e.g. 1.2.3)');
+      }
+    }
+  }
+
+  // name
+  if (project.name !== undefined) {
+    checkType(project.name, 'string', 'name');
+    if (typeof project.name === 'string' && project.name.length < 1) {
+      issues.push('name: must not be empty');
+    }
+  }
+
+  // type
+  if (project.type !== undefined) {
+    checkType(project.type, 'string', 'type');
+    if (typeof project.type === 'string' && !['domain', 'cluster'].includes(project.type)) {
+      issues.push('type: must be "domain" or "cluster", got "' + project.type + '"');
+    }
+  }
+
+  // status
+  if (project.status !== undefined) {
+    checkType(project.status, 'string', 'status');
+    if (typeof project.status === 'string') {
+      const validStatuses = ['drafting', 'cards_in_progress', 'ready_for_test', 'ready_for_release', 'released'];
+      if (!validStatuses.includes(project.status)) {
+        issues.push('status: must be one of ' + validStatuses.join(', ') + ', got "' + project.status + '"');
+      }
+    }
+  }
+
+  // project_id
+  if (project.project_id !== undefined) {
+    checkType(project.project_id, 'string', 'project_id');
+  }
+
+  // created / updated
+  if (project.created !== undefined) checkType(project.created, 'string', 'created');
+  if (project.updated !== undefined) checkType(project.updated, 'string', 'updated');
+
+  // author
+  if (project.author !== undefined) {
+    checkType(project.author, 'object', 'author');
+  }
+
+  // cards
+  if (project.cards !== undefined) {
+    checkType(project.cards, 'array', 'cards');
+    if (Array.isArray(project.cards)) {
+      for (let i = 0; i < project.cards.length; i++) {
+        const card = project.cards[i];
+        if (!card || typeof card !== 'object') {
+          issues.push('cards[' + i + ']: must be an object');
+          continue;
+        }
+        for (const req of ['id', 'type', 'status']) {
+          if (!(req in card)) issues.push('cards[' + i + ']: missing required field "' + req + '"');
+        }
+        if (card.type !== undefined) {
+          const validTypes = ['axiom', 'ontology', 'misunderstanding', 'boundary', 'self_check', 'risk', 'aesthetic', 'scenario', 'case'];
+          if (!validTypes.includes(card.type)) issues.push('cards[' + i + ']: invalid type "' + card.type + '"');
+        }
+        if (card.status !== undefined) {
+          const validStates = ['draft', 'revised', 'locked', 'tested', 'published', 'deprecated'];
+          if (!validStates.includes(card.status)) issues.push('cards[' + i + ']: invalid status "' + card.status + '"');
+        }
+      }
+    }
+  }
+
+  // evidence
+  if (project.evidence !== undefined) {
+    checkType(project.evidence, 'array', 'evidence');
+    if (Array.isArray(project.evidence)) {
+      for (let i = 0; i < project.evidence.length; i++) {
+        const ev = project.evidence[i];
+        if (!ev || typeof ev !== 'object') {
+          issues.push('evidence[' + i + ']: must be an object');
+          continue;
+        }
+        for (const req of ['id', 'type', 'title']) {
+          if (!(req in ev)) issues.push('evidence[' + i + ']: missing required field "' + req + '"');
+        }
+      }
+    }
+  }
+
+  // tests
+  if (project.tests !== undefined) {
+    checkType(project.tests, 'array', 'tests');
+    if (Array.isArray(project.tests)) {
+      for (let i = 0; i < project.tests.length; i++) {
+        const t = project.tests[i];
+        if (!t || typeof t !== 'object') {
+          issues.push('tests[' + i + ']: must be an object');
+          continue;
+        }
+        for (const req of ['id', 'input']) {
+          if (!(req in t)) issues.push('tests[' + i + ']: missing required field "' + req + '"');
+        }
+      }
+    }
+  }
+
+  // stages
+  if (project.stages !== undefined) {
+    checkType(project.stages, 'object', 'stages');
+  }
+
   return { valid: issues.length === 0, issues };
 }
 
 function upgradeProject(project, fromVersion, toVersion) {
-  // TODO: migration logic across studio_version changes
+  const migrations = {
+    '0.1.0_to_0.2.0': function(p) {
+      if (!p.release) p.release = { version: toVersion };
+      return p;
+    }
+  };
+  const key = fromVersion + '_to_' + toVersion;
+  if (migrations[key]) {
+    project = migrations[key](project);
+  } else {
+    throw new Error('upgradeProject: no migration path from ' + fromVersion + ' to ' + toVersion);
+  }
   project.studio_version = toVersion;
   return project;
 }

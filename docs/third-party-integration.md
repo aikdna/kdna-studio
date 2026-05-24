@@ -86,7 +86,7 @@ Every domain compiled by Studio Core includes provenance:
 ```json
 {
   "provenance": {
-    "studio_core": "knowledge-dna/kdna-studio",
+    "studio_core": "aikdna/kdna-studio",
     "studio_core_version": "0.4.1",
     "build_id": "build_...",
     "project_id": "studio_...",

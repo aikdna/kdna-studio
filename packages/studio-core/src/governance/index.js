@@ -18,36 +18,34 @@ const HIGH_RISK_KEYWORDS = {
 
 function computeRiskLevel(project) {
   const cards = project.cards || [];
-  const allText = cards.map(c => {
-    const fields = c.fields || {};
-    return [fields.one_sentence, fields.full_statement, fields.wrong, fields.correct, fields.question,
-      fields.essence, fields.scope, fields.out_of_scope,
-      ...(fields.applies_when || []), ...(fields.does_not_apply_when || [])]
-      .filter(Boolean).join(' ').toLowerCase();
-  }).join(' ');
 
   // Check declared risk level first
   const declared = (project.governance && project.governance.risk_level) || null;
   if (declared === 'R3') return 'R3';
 
-  // Check for high-risk keywords
-  let detectedCategory = null;
-  for (const [category, keywords] of Object.entries(HIGH_RISK_KEYWORDS)) {
-    for (const kw of keywords) {
-      if (allText.includes(kw)) { detectedCategory = category; break; }
+  // Short-circuit: check each card individually and stop at first high-risk match
+  for (const card of cards) {
+    const fields = card.fields || {};
+    const cardText = [fields.one_sentence, fields.full_statement, fields.wrong, fields.correct, fields.question,
+      fields.essence, fields.scope, fields.out_of_scope,
+      ...(fields.applies_when || []), ...(fields.does_not_apply_when || [])]
+      .filter(Boolean).join(' ').toLowerCase();
+
+    for (const [category, keywords] of Object.entries(HIGH_RISK_KEYWORDS)) {
+      for (const kw of keywords) {
+        if (cardText.includes(kw)) {
+          if (['medical', 'safety'].includes(category)) return 'R3';
+          if (['legal', 'financial'].includes(category)) return 'R2';
+          if (category === 'decision') return 'R1';
+        }
+      }
     }
-    if (detectedCategory) break;
   }
 
   // If no high-risk keywords found and R0-R2 declared, trust the declaration
-  if (!detectedCategory && declared) return declared;
+  if (declared) return declared;
 
-  // Default risk levels
-  if (['medical', 'safety'].includes(detectedCategory)) return 'R3';
-  if (['legal', 'financial'].includes(detectedCategory)) return 'R2';
-  if (detectedCategory === 'decision') return 'R1';
-
-  return declared || 'R1'; // Default: medium risk
+  return 'R1'; // Default: medium risk
 }
 
 function requiresExpertReview(riskLevel) {
@@ -72,8 +70,11 @@ function validateGovernance(project) {
     issues.push({ type: 'missing_limitations', severity: 'blocking', message: 'Governance: known_limitations must be declared' });
   }
 
+  // Compute risk level once, reuse for both riskLevel and detectedLevel
+  const computedLevel = computeRiskLevel(project);
+  const riskLevel = gov.risk_level || computedLevel;
+
   // Risk level specific checks
-  const riskLevel = gov.risk_level || computeRiskLevel(project);
   if (requiresExpertReview(riskLevel)) {
     if (!gov.reviewed_by) {
       issues.push({ type: 'requires_expert_review', severity: 'blocking', message: `Governance: risk_level ${riskLevel} requires expert_review. reviewed_by must be set.` });
@@ -84,7 +85,7 @@ function validateGovernance(project) {
   }
 
   // Check for high-risk keywords in content that might not match declared level
-  const detectedLevel = computeRiskLevel(project);
+  const detectedLevel = computedLevel;
   if (gov.risk_level && ['R0', 'R1'].includes(gov.risk_level) && ['R2', 'R3'].includes(detectedLevel)) {
     issues.push({
       type: 'risk_mismatch',

@@ -24,7 +24,7 @@ const TRANSITIONS = {
 function createCard(type, fields = {}, id = null) {
   if (!CARD_TYPES.includes(type)) throw new Error(`Invalid card type: ${type}`);
   const card = {
-    id: id || `${type.slice(0, 2)}_${Date.now().toString(36)}`,
+    id: id || `${type.slice(0, 2)}_${require('crypto').randomUUID()}`,
     type,
     status: 'draft',
     locked: false,
@@ -45,16 +45,16 @@ function transitionCard(card, toState, transitionContext = {}) {
   if (!TRANSITIONS[card.status].includes(toState)) {
     throw new Error(`Invalid transition: ${card.status} → ${toState}`);
   }
-  const from = card.status;
-  card.status = toState;
-  card.locked = ['locked', 'tested', 'published'].includes(toState);
-  card.audit_log.push({
+  const newCard = { ...card, fields: { ...card.fields } };
+  newCard.status = toState;
+  newCard.locked = ['locked', 'tested', 'published'].includes(toState);
+  newCard.audit_log = [...(card.audit_log || []), {
     at: new Date().toISOString(),
     event: toState,
     by: transitionContext.by || 'system',
     ...(transitionContext.reason && { reason: transitionContext.reason }),
-  });
-  return card;
+  }];
+  return newCard;
 }
 
 function lockCard(card, lockPayload) {
@@ -64,20 +64,22 @@ function lockCard(card, lockPayload) {
   if (!lockPayload.checked?.does_not_apply_when) throw new Error('Must confirm does_not_apply_when reviewed');
   if (!lockPayload.checked?.failure_risk) throw new Error('Must confirm failure_risk reviewed');
 
-  card.human_lock = {
+  const lockedCard = { ...card, fields: { ...card.fields } };
+  lockedCard.human_lock = {
     by: lockPayload.by,
     at: new Date().toISOString(),
     statement: lockPayload.statement,
     checked: lockPayload.checked,
   };
 
-  return transitionCard(card, 'locked', { by: lockPayload.by });
+  return transitionCard(lockedCard, 'locked', { by: lockPayload.by });
 }
 
 function unlockCard(card, reason, by) {
   if (!reason) throw new Error('Unlock requires a reason');
-  card.human_lock = null;
-  return transitionCard(card, 'revised', {
+  const unlockedCard = { ...card, fields: { ...card.fields } };
+  unlockedCard.human_lock = null;
+  return transitionCard(unlockedCard, 'revised', {
     by,
     reason: `unlocked: ${reason}`,
   });

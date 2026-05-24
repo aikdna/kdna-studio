@@ -103,7 +103,7 @@ function applyOverlayToObject(obj, translations, prefix = '') {
           if (typeof item === 'object' && item !== null) {
             applyOverlayToObject(item, translations, `${fullKey}.${i}`);
           } else if (item && item.id) {
-            applyOverlayToObject(item, translations, item.id);
+            applyOverlayToObject(item, translations, `${fullKey}.${i}`);
           }
         });
       }
@@ -126,13 +126,20 @@ function computeI18nCoverage(project) {
     return sum + count;
   }, 0);
 
-  let level = 'L0';
-  if (totalFields > 0) level = 'L1'; // Assume card/readme localization
-  if (totalFields > 5) level = 'L2'; // Key fields covered
-  if (totalFields > 15) level = 'L3'; // Full coverage
-  if ((project.tests || []).length >= 5) level = 'L4'; // Has evals
+  // Check overlay for actual translation completion
+  const overlay = project.i18n_overlay || {};
+  const translations = overlay.translations || {};
+  const translatedCount = Object.values(translations).filter(v => typeof v === 'string' && !v.includes('[TODO:')).length;
 
-  return { level, coverage: Math.min(100, Math.round(locked.length * 10)), translatable_fields: totalFields };
+  const coverage = totalFields > 0 ? Math.round((translatedCount / totalFields) * 100) : 0;
+
+  let level = 'L0';
+  if (totalFields > 0) level = 'L1'; // Has translatable content
+  if (coverage >= 30) level = 'L2';  // Key fields covered
+  if (coverage >= 70) level = 'L3';  // Full coverage
+  if (coverage >= 90 && (project.tests || []).length >= 5) level = 'L4'; // Full coverage + evals
+
+  return { level, coverage: Math.min(100, coverage), translatable_fields: totalFields, translated_fields: translatedCount };
 }
 
 module.exports = { createLocaleOverlay, validateLocaleOverlay, applyLocaleOverlay, computeI18nCoverage, VALID_LOCALES };

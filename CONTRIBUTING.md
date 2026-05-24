@@ -39,7 +39,7 @@ These rules protect the integrity of the KDNA ecosystem. They are non-negotiable
 ## Development
 
 ```bash
-git clone https://github.com/knowledge-dna/kdna-studio.git
+git clone https://github.com/aikdna/kdna-studio.git
 cd kdna-studio
 npm install
 npm test

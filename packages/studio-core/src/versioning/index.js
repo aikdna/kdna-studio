@@ -38,10 +38,17 @@ function cardSummary(card, changes) {
     changes: changes || null };
 }
 
+function stableStringify(obj) {
+  if (typeof obj !== 'object' || obj === null) return JSON.stringify(obj);
+  if (Array.isArray(obj)) return '[' + obj.map(stableStringify).join(',') + ']';
+  const keys = Object.keys(obj).sort();
+  return '{' + keys.map(k => JSON.stringify(k) + ':' + stableStringify(obj[k])).join(',') + '}';
+}
+
 function diffFields(oldFields, newFields) {
   const changes = {};
   for (const key of new Set([...Object.keys(oldFields), ...Object.keys(newFields)])) {
-    const ov = JSON.stringify(oldFields[key] || null), nv = JSON.stringify(newFields[key] || null);
+    const ov = stableStringify(oldFields[key] || null), nv = stableStringify(newFields[key] || null);
     if (ov !== nv) changes[key] = { before: oldFields[key] || null, after: newFields[key] || null };
   }
   return changes;

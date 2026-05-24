@@ -9,7 +9,7 @@ const crypto = require('crypto');
 
 function createEvidenceEntry(type, title, content, source = 'manual') {
   return {
-    id: `ev_${Date.now().toString(36)}`,
+    id: `ev_${crypto.randomUUID()}`,
     type,
     title,
     content_hash: `sha256:${crypto.createHash('sha256').update(content || '').digest('hex')}`,

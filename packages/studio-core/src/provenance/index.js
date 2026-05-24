@@ -20,9 +20,9 @@ function buildProvenance(project, compiledFiles) {
   const contentFingerprint = crypto.createHash('sha256').update(cardHashes.join('\n')).digest('hex');
 
   return {
-    studio_core: 'knowledge-dna/kdna-studio',
+    studio_core: 'aikdna/kdna-studio',
     studio_core_version: project.studio_version || '0.1.0',
-    build_id: `build_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+    build_id: `build_${crypto.randomUUID()}`,
     project_id: project.project_id,
     author_id: project.author?.id || '',
     locked_card_count: lockedCards.length,

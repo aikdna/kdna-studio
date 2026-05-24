@@ -107,8 +107,9 @@ function validateMisunderstanding(card, issues) {
 function validateSelfCheck(card, issues) {
   const question = card.fields?.question || '';
 
-  if (!question.endsWith('?')) {
-    issues.push({ type: 'not_question', severity: 'blocking', message: `${card.id}: must be a question ending with ?` });
+  const isQuestion = question.endsWith('?') || question.endsWith('？') || /[吗是否]$/.test(question);
+  if (!isQuestion) {
+    issues.push({ type: 'not_question', severity: 'blocking', message: `${card.id}: must be a yes/no answerable question` });
   }
 
   if (question.length < 15) {

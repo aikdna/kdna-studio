@@ -11,7 +11,7 @@
 
 function createTestCase(input, options = {}) {
   return {
-    id: `test_${Date.now().toString(36)}`,
+    id: `test_${require('crypto').randomUUID()}`,
     input,
     expected_without_kdna: options.expectedWithout || '',
     expected_with_kdna: options.expectedWith || '',

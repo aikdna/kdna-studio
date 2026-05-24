@@ -10,6 +10,17 @@
  *   - Missing counterexamples (misunderstanding lacks a real example)
  */
 
+function tokenize(text) {
+  if (!text) return [];
+  try {
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      const segmenter = new Intl.Segmenter('en', { granularity: 'word' });
+      return [...segmenter.segment(text)].filter(s => s.isWordLike && s.segment.length > 3).map(s => s.segment);
+    }
+  } catch { /* fallback */ }
+  return text.split(/\s+/).filter(w => w.length > 3);
+}
+
 function detectContradictions(cards) {
   const issues = [];
   const axioms = cards.filter(c => c.type === 'axiom' && c.locked);
@@ -73,8 +84,8 @@ function detectContradictions(cards) {
     }
 
     // Check the wrong and correct are actually different (not just negation)
-    const wrongWords = new Set(wrong.toLowerCase().split(/\s+/).filter(w => w.length > 3));
-    const correctWords = correct.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+    const wrongWords = new Set(tokenize(wrong.toLowerCase()));
+    const correctWords = tokenize(correct.toLowerCase());
     const sharedWords = correctWords.filter(w => wrongWords.has(w)).length;
     if (correctWords.length > 0 && sharedWords / correctWords.length > 0.7) {
       issues.push({

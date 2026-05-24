@@ -6,6 +6,17 @@
  * rather than just nodding at an AI proposal.
  */
 
+function tokenize(text) {
+  if (!text) return [];
+  try {
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      const segmenter = new Intl.Segmenter('en', { granularity: 'word' });
+      return [...segmenter.segment(text)].filter(s => s.isWordLike && s.segment.length > 3).map(s => s.segment);
+    }
+  } catch { /* fallback */ }
+  return text.split(/\s+/).filter(w => w.length > 3);
+}
+
 function createFeynmanRestatement(card, text) {
   if (!text || typeof text !== 'string') throw new Error('Feynman restatement text is required');
   if (text.length < 20) throw new Error('Feynman restatement too short (minimum 20 chars)');
@@ -25,8 +36,8 @@ function evaluateRestatementQuality(card, text) {
   const textLower = text.toLowerCase();
 
   // 1. Not just a repeat — check word overlap ratio
-  const originalWords = new Set(originalLower.split(/\s+/).filter(w => w.length > 3));
-  const textWords = textLower.split(/\s+/).filter(w => w.length > 3);
+  const originalWords = new Set(tokenize(originalLower));
+  const textWords = tokenize(textLower);
   const overlapCount = textWords.filter(w => originalWords.has(w)).length;
   const overlapRatio = textWords.length > 0 ? overlapCount / textWords.length : 1;
   const not_just_repeat = overlapRatio < 0.5;

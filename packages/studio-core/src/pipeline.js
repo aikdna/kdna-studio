@@ -25,7 +25,7 @@ class StudioPipeline {
   }
 
   validateProject() { this.results.project_valid = validateProject(this.project); return this; }
-  validateCards() { this.results.card_validation = { total: validateAllCards(this.project).length, issues: validateAllCards(this.project) }; return this; }
+  validateCards() { const cardIssues = validateAllCards(this.project); this.results.card_validation = { total: cardIssues.length, issues: cardIssues }; return this; }
   computeReadiness() { this.results.readiness = computeReadiness(this.project); return this; }
   
   compile() {
