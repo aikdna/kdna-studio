@@ -258,7 +258,7 @@ describe('Full Authoring Workflow', () => {
 
     // Stage 3: Lock cards
     const locked = [];
-    for (const card of [ax1, ms1, sc1]) {
+    for (let card of [ax1, ms1, sc1]) {
       card = transitionCard(card, 'revised', { by: 'expert_001' });
       card = lockCard(card, {
         by: 'expert_001',
@@ -267,6 +267,7 @@ describe('Full Authoring Workflow', () => {
       });
       locked.push(card);
     }
+    project.cards = locked;
 
     // Stage 4: Feynman restatements
     for (const card of locked) {
