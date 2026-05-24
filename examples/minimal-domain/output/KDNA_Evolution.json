@@ -1,0 +1,67 @@
+{
+  "meta": {
+    "version": "0.1.0",
+    "domain": "writing_judgment",
+    "created": "2026-05-24",
+    "purpose": "Editorial writing judgment — diagnose structural vs language-level problems.",
+    "load_condition": "Load when the task matches applies_when on domain axioms."
+  },
+  "stages": [
+    {
+      "id": "stage_ax_001",
+      "name": "Most writing problems are structural and argument-level, not language-level.",
+      "description": "Card ax_001 was locked by demo_author at 2026-05-24T14:05:59.557Z. Type: axiom.",
+      "indicators": [
+        "axiom card locked",
+        "Human judgment confirmed"
+      ]
+    },
+    {
+      "id": "stage_ms_001",
+      "name": "ms_001",
+      "description": "Card ms_001 was locked by demo_author at 2026-05-24T14:05:59.558Z. Type: misunderstanding.",
+      "indicators": [
+        "misunderstanding card locked",
+        "Human judgment confirmed"
+      ]
+    },
+    {
+      "id": "stage_sc_001",
+      "name": "Before suggesting language-level changes, did I verify that the content has a clear argument, a cognitive hook, and sufficient evidence?",
+      "description": "Card sc_001 was locked by demo_author at 2026-05-24T14:05:59.558Z. Type: self_check.",
+      "indicators": [
+        "self_check card locked",
+        "Human judgment confirmed"
+      ]
+    }
+  ],
+  "evolution_layers": [
+    {
+      "id": "layer_1",
+      "name": "Foundation",
+      "capability": "Core axioms and patterns established.",
+      "from_stage": "stage_ax_001",
+      "to_stage": "stage_sc_001"
+    }
+  ],
+  "measurement": [
+    {
+      "id": "meas_axioms",
+      "what": "locked_axioms",
+      "how": "Count of locked axiom cards",
+      "threshold": "1"
+    },
+    {
+      "id": "meas_misunderstandings",
+      "what": "locked_misunderstandings",
+      "how": "Count of locked misunderstanding cards",
+      "threshold": "1"
+    },
+    {
+      "id": "meas_self_checks",
+      "what": "self_checks",
+      "how": "Count of locked self-check cards",
+      "threshold": "1"
+    }
+  ]
+}

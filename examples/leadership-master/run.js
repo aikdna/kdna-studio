@@ -22,9 +22,9 @@ const {
 } = require('../../packages/studio-core/src');
 
 function mlc(type, fields, id) {
-  const card = createCard(type, fields, id);
-  transitionCard(card, 'revised', { by: 'leadership_expert' });
-  lockCard(card, { by: 'leadership_expert', statement: '15 years of leadership coaching across 200+ teams.',
+  let card = createCard(type, fields, id);
+  card = transitionCard(card, 'revised', { by: 'leadership_expert' });
+  card = lockCard(card, { by: 'leadership_expert', statement: '15 years of leadership coaching across 200+ teams.',
     checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
   return card;
 }

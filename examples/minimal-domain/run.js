@@ -21,9 +21,9 @@ const {
 } = require('../../packages/studio-core/src');
 
 function makeLockedCard(type, fields, id) {
-  const card = createCard(type, fields, id);
-  transitionCard(card, 'revised', { by: 'demo_author' });
-  lockCard(card, { by: 'demo_author', statement: 'I confirm this judgment represents my domain expertise.',
+  let card = createCard(type, fields, id);
+  card = transitionCard(card, 'revised', { by: 'demo_author' });
+  card = lockCard(card, { by: 'demo_author', statement: 'I confirm this judgment represents my domain expertise.',
     checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
   return card;
 }

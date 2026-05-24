@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "version": "0.1.0",
+    "domain": "writing_judgment",
+    "created": "2026-05-24",
+    "purpose": "Editorial writing judgment — diagnose structural vs language-level problems.",
+    "load_condition": "Load when the task matches applies_when on domain axioms."
+  },
+  "axioms": [
+    {
+      "id": "ax_001",
+      "one_sentence": "Most writing problems are structural and argument-level, not language-level.",
+      "full_statement": "When reviewing content, the agent must first diagnose whether the problem is structural (missing argument, weak hook, insufficient evidence) or surface-level (wording, grammar, flow). Treating structural problems with language polishing is the most common writing diagnosis failure.",
+      "why": "Without this axiom, agents default to surface-level editing suggestions that do not address root causes.",
+      "applies_when": [
+        "User asks to review content",
+        "User asks to improve writing",
+        "User submits draft for feedback"
+      ],
+      "does_not_apply_when": [
+        "User explicitly asks for grammar check only",
+        "User asks for translation",
+        "User asks for formatting"
+      ],
+      "failure_risk": "May cause the agent to over-diagnose structural problems in content that genuinely only needs language polishing."
+    }
+  ],
+  "ontology": [],
+  "frameworks": [],
+  "stances": [],
+  "core_structure": [],
+  "boundaries": [],
+  "risks": []
+}
