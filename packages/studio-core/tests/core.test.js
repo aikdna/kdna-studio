@@ -35,8 +35,8 @@ test('createCard returns draft card', () => {
 
 test('transitionCard: draft → revised', () => {
   const card = createCard('axiom', {});
-  transitionCard(card, 'revised', { by: 'test_user' });
-  assert.equal(card.status, 'revised');
+  const result = transitionCard(card, 'revised', { by: 'test_user' });
+  assert.equal(result.status, 'revised');
 });
 
 test('transitionCard blocks draft → locked', () => {
@@ -45,9 +45,9 @@ test('transitionCard blocks draft → locked', () => {
 });
 
 test('lockCard sets human_lock and transitions to locked', () => {
-  const card = createCard('axiom', { one_sentence: 'Test' });
-  transitionCard(card, 'revised', { by: 'test_user' });
-  lockCard(card, {
+  let card = createCard('axiom', { one_sentence: 'Test' });
+  card = transitionCard(card, 'revised', { by: 'test_user' });
+  card = lockCard(card, {
     by: 'test_user',
     statement: 'I confirm this judgment.',
     checked: { applies_when: true, does_not_apply_when: true, failure_risk: true },
@@ -59,16 +59,16 @@ test('lockCard sets human_lock and transitions to locked', () => {
 });
 
 test('lockCard rejects missing checked fields', () => {
-  const card = createCard('axiom', {});
-  transitionCard(card, 'revised', { by: 'test_user' });
+  let card = createCard('axiom', {});
+  card = transitionCard(card, 'revised', { by: 'test_user' });
   assert.throws(() => lockCard(card, { by: 'u', statement: 'ok', checked: {} }), /applies_when/);
 });
 
 test('getLockedCards filters correctly', () => {
   const project = { cards: [] };
-  const c1 = createCard('axiom', {});
-  transitionCard(c1, 'revised', { by: 'u' });
-  lockCard(c1, { by: 'u', statement: 'ok', checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
+  let c1 = createCard('axiom', {});
+  c1 = transitionCard(c1, 'revised', { by: 'u' });
+  c1 = lockCard(c1, { by: 'u', statement: 'ok', checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
   project.cards.push(c1);
   project.cards.push(createCard('misunderstanding', {})); // draft
   assert.equal(getLockedCards(project).length, 1);
@@ -78,7 +78,7 @@ test('getLockedCards filters correctly', () => {
 
 test('compileDomain only includes locked cards', () => {
   const project = createProject('test');
-  const card = createCard('axiom', {
+  let card = createCard('axiom', {
     one_sentence: 'Test axiom.',
     full_statement: 'Full statement.',
     why: 'Because.',
@@ -86,8 +86,8 @@ test('compileDomain only includes locked cards', () => {
     does_not_apply_when: ['when not testing'],
     failure_risk: 'Test may fail.',
   });
-  transitionCard(card, 'revised', { by: 'u' });
-  lockCard(card, { by: 'u', statement: 'ok', checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
+  card = transitionCard(card, 'revised', { by: 'u' });
+  card = lockCard(card, { by: 'u', statement: 'ok', checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
   project.cards = [card, createCard('axiom', { one_sentence: 'Draft axiom' })];
 
   const result = compileDomain(project);
@@ -106,14 +106,14 @@ test('computeReadiness empty project → draft_grade', () => {
 
 test('computeReadiness locked cards → human_controlled', () => {
   const project = createProject('test');
-  const card = createCard('axiom', {
+  let card = createCard('axiom', {
     one_sentence: 'Test.',
     applies_when: ['when test'],
     does_not_apply_when: ['when not test'],
     failure_risk: 'risk',
   });
-  transitionCard(card, 'revised', { by: 'u' });
-  lockCard(card, { by: 'u', statement: 'ok', checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
+  card = transitionCard(card, 'revised', { by: 'u' });
+  card = lockCard(card, { by: 'u', statement: 'ok', checked: { applies_when: true, does_not_apply_when: true, failure_risk: true } });
   project.cards = [card];
   const r = computeReadiness(project);
   assert.equal(r.grade, 'draft_grade'); // still need 3 locked cards for human_controlled

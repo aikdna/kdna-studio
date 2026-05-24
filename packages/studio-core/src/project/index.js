@@ -5,9 +5,22 @@
  *   - Create, load, save, validate Studio Project manifests
  *   - Manage project-level state transitions
  *   - Schema validation against studio.project.schema.json
+ *   - Human Lock gate enforcement on export
  */
 
+const crypto = require('crypto');
 const projectSchema = require('../../../studio-schemas/studio.project.schema.json');
+
+// Card types that carry judgment-class fields per human-lock.md SPEC
+const JUDGMENT_CARD_TYPES = new Set(['axiom', 'boundary', 'risk', 'aesthetic']);
+
+// Fields within a card that constitute "judgment content" — changes here require Human Lock
+const JUDGMENT_FIELDS = new Set([
+  'one_sentence', 'full_statement', 'why', 'essence', 'boundary',
+  'wrong', 'correct', 'key_distinction', 'question', 'scope',
+  'out_of_scope', 'applies_when', 'does_not_apply_when', 'failure_risk',
+  'acceptable_exceptions', 'trigger_signal', 'when_to_use', 'steps',
+]);
 
 function createProject(name, type = 'domain', options = {}) {
   const project = {
@@ -215,4 +228,145 @@ function upgradeProject(project, fromVersion, toVersion) {
   return project;
 }
 
-module.exports = { createProject, loadProject, saveProject, validateProject, upgradeProject };
+// ─── Human Lock Gate ────────────────────────────────────────────────────
+
+/**
+ * Compute a content fingerprint of judgment-class fields for a card.
+ * Used to detect whether judgment content changed since the last Human Lock.
+ */
+function cardJudgmentFingerprint(card) {
+  const fields = card.fields || {};
+  const relevant = {};
+  for (const key of JUDGMENT_FIELDS) {
+    if (key in fields) relevant[key] = fields[key];
+  }
+  return crypto.createHash('sha256')
+    .update(card.type + ':' + JSON.stringify(relevant, Object.keys(relevant).sort()))
+    .digest('hex');
+}
+
+/**
+ * Detect judgment-class cards that require Human Lock but don't have it,
+ * or have been modified since their last Human Lock.
+ *
+ * @returns {{ blocked: boolean, issues: Array<{cardId: string, type: string, reason: string}> }}
+ */
+function checkHumanLockGate(project) {
+  const issues = [];
+  const cards = project.cards || [];
+
+  for (const card of cards) {
+    if (!JUDGMENT_CARD_TYPES.has(card.type)) continue;
+
+    const cardId = card.id || 'unknown';
+
+    // Rule 1: Judgment-class cards must be locked before export
+    if (card.status !== 'locked' && card.status !== 'tested' && card.status !== 'published') {
+      issues.push({
+        cardId,
+        type: card.type,
+        reason: `judgment-class card "${cardId}" (${card.type}) is not locked. Human Lock required before export.`
+      });
+      continue;
+    }
+
+    // Rule 2: Locked cards must have a Human Lock record
+    if (!card.human_lock || !card.human_lock.by || !card.human_lock.statement) {
+      issues.push({
+        cardId,
+        type: card.type,
+        reason: `locked card "${cardId}" (${card.type}) has no valid Human Lock record (missing by/statement).`
+      });
+      continue;
+    }
+
+    // Rule 3: Lock must confirm judgment-class fields were reviewed
+    const checked = card.human_lock.checked || {};
+    if (!checked.applies_when) {
+      issues.push({
+        cardId,
+        type: card.type,
+        reason: `card "${cardId}" Human Lock does not confirm applies_when was reviewed.`
+      });
+    }
+    if (!checked.does_not_apply_when) {
+      issues.push({
+        cardId,
+        type: card.type,
+        reason: `card "${cardId}" Human Lock does not confirm does_not_apply_when was reviewed.`
+      });
+    }
+    if (!checked.failure_risk) {
+      issues.push({
+        cardId,
+        type: card.type,
+        reason: `card "${cardId}" Human Lock does not confirm failure_risk was reviewed.`
+      });
+    }
+  }
+
+  // Rule 4: At least one locked judgment-class card must exist for a domain project
+  const lockedJudgmentCards = cards.filter(c =>
+    JUDGMENT_CARD_TYPES.has(c.type) &&
+    ['locked', 'tested', 'published'].includes(c.status)
+  );
+  if (lockedJudgmentCards.length === 0 && cards.some(c => JUDGMENT_CARD_TYPES.has(c.type))) {
+    issues.push({
+      cardId: '(project)',
+      type: 'project',
+      reason: 'No judgment-class cards are locked. At least one axiom, boundary, or risk card must be Human Locked before export.'
+    });
+  }
+
+  return {
+    blocked: issues.length > 0,
+    issues,
+    lockedJudgmentCards: lockedJudgmentCards.length,
+  };
+}
+
+/**
+ * Export a project for release, with Human Lock gate enforcement.
+ * Blocks if any judgment-class cards are not properly locked.
+ *
+ * @throws {Error} if Human Lock gate blocks export
+ * @returns {string} JSON string of the project
+ */
+function exportProject(project, options = {}) {
+  const gate = checkHumanLockGate(project);
+
+  if (gate.blocked && !options.force) {
+    const lines = ['Human Lock Gate blocked export:', ''];
+    for (const issue of gate.issues) {
+      lines.push(`  ✗ ${issue.cardId}: ${issue.reason}`);
+    }
+    lines.push('');
+    lines.push(`  Locked judgment cards: ${gate.lockedJudgmentCards}`);
+    lines.push('  To override (emergency only): pass { force: true }');
+    throw new Error(lines.join('\n'));
+  }
+
+  if (gate.blocked && options.force) {
+    // Emergency override: recorded but not blocked
+    project._human_lock_override = {
+      overridden_at: new Date().toISOString(),
+      reason: options.forceReason || 'Emergency override (no reason provided)',
+      blocked_issues: gate.issues.map(i => ({ cardId: i.cardId, reason: i.reason })),
+    };
+  }
+
+  project.updated = new Date().toISOString().slice(0, 10);
+
+  // Update release metadata
+  if (!project.release) project.release = {};
+  project.release.exported_at = new Date().toISOString();
+  project.release.locked_judgment_cards = gate.lockedJudgmentCards;
+  project.release.human_lock_gate_passed = !gate.blocked || !!options.force;
+
+  return JSON.stringify(project, null, 2);
+}
+
+module.exports = {
+  createProject, loadProject, saveProject, validateProject, upgradeProject,
+  exportProject, checkHumanLockGate, cardJudgmentFingerprint, JUDGMENT_CARD_TYPES
+};
