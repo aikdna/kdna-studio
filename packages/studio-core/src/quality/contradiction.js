@@ -14,7 +14,7 @@ function tokenize(text) {
   if (!text) return [];
   try {
     if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-      const segmenter = new Intl.Segmenter('en', { granularity: 'word' });
+      const segmenter = new Intl.Segmenter(undefined, { granularity: 'word' });
       return [...segmenter.segment(text)].filter(s => s.isWordLike && s.segment.length > 3).map(s => s.segment);
     }
   } catch { /* fallback */ }
