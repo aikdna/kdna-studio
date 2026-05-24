@@ -10,17 +10,7 @@
 
 const crypto = require('crypto');
 const projectSchema = require('../../../studio-schemas/studio.project.schema.json');
-
-// Card types that carry judgment-class fields per human-lock.md SPEC
-const JUDGMENT_CARD_TYPES = new Set(['axiom', 'boundary', 'risk', 'aesthetic']);
-
-// Fields within a card that constitute "judgment content" — changes here require Human Lock
-const JUDGMENT_FIELDS = new Set([
-  'one_sentence', 'full_statement', 'why', 'essence', 'boundary',
-  'wrong', 'correct', 'key_distinction', 'question', 'scope',
-  'out_of_scope', 'applies_when', 'does_not_apply_when', 'failure_risk',
-  'acceptable_exceptions', 'trigger_signal', 'when_to_use', 'steps',
-]);
+const { JUDGMENT_CARD_TYPES, cardJudgmentFingerprint } = require('../judgment-fields');
 
 function createProject(name, type = 'domain', options = {}) {
   const project = {
@@ -231,23 +221,8 @@ function upgradeProject(project, fromVersion, toVersion) {
 // ─── Human Lock Gate ────────────────────────────────────────────────────
 
 /**
- * Compute a content fingerprint of judgment-class fields for a card.
- * Used to detect whether judgment content changed since the last Human Lock.
- */
-function cardJudgmentFingerprint(card) {
-  const fields = card.fields || {};
-  const relevant = {};
-  for (const key of JUDGMENT_FIELDS) {
-    if (key in fields) relevant[key] = fields[key];
-  }
-  return crypto.createHash('sha256')
-    .update(card.type + ':' + JSON.stringify(relevant, Object.keys(relevant).sort()))
-    .digest('hex');
-}
-
-/**
  * Detect judgment-class cards that require Human Lock but don't have it,
- * or have been modified since their last Human Lock.
+ * or have had their judgment fields changed since the last Human Lock.
  *
  * @returns {{ blocked: boolean, issues: Array<{cardId: string, type: string, reason: string}> }}
  */
@@ -302,6 +277,18 @@ function checkHumanLockGate(project) {
         type: card.type,
         reason: `card "${cardId}" Human Lock does not confirm failure_risk was reviewed.`
       });
+    }
+
+    // Rule 4: Judgment fields must not have changed since lock
+    if (card.human_lock.judgment_fingerprint) {
+      const currentFingerprint = cardJudgmentFingerprint(card);
+      if (currentFingerprint !== card.human_lock.judgment_fingerprint) {
+        issues.push({
+          cardId,
+          type: card.type,
+          reason: `card "${cardId}" judgment fields changed after Human Lock — re-lock required.`
+        });
+      }
     }
   }
 
@@ -368,5 +355,5 @@ function exportProject(project, options = {}) {
 
 module.exports = {
   createProject, loadProject, saveProject, validateProject, upgradeProject,
-  exportProject, checkHumanLockGate, cardJudgmentFingerprint, JUDGMENT_CARD_TYPES
+  exportProject, checkHumanLockGate, JUDGMENT_CARD_TYPES
 };

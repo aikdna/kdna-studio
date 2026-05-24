@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 
 const { createProject, checkHumanLockGate, exportProject } = require('../src/project');
 const { createCard, lockCard, transitionCard } = require('../src/cards');
+const { cardJudgmentFingerprint } = require('../src/judgment-fields');
 
 // ─── Human Lock Gate ──────────────────────────────────────────────────
 
@@ -145,22 +146,37 @@ test('exportProject: multiple judgment cards, partial lock blocks', () => {
 // ─── cardJudgmentFingerprint ─────────────────────────────────────────
 
 test('cardJudgmentFingerprint: produces stable hash for same content', () => {
-  const { cardJudgmentFingerprint } = require('../src/project');
   const card1 = createCard('axiom', { one_sentence: 'A', full_statement: 'B', why: 'C' });
   const card2 = createCard('axiom', { one_sentence: 'A', full_statement: 'B', why: 'C' });
   assert.equal(cardJudgmentFingerprint(card1), cardJudgmentFingerprint(card2));
 });
 
 test('cardJudgmentFingerprint: different content produces different hash', () => {
-  const { cardJudgmentFingerprint } = require('../src/project');
   const card1 = createCard('axiom', { one_sentence: 'A' });
   const card2 = createCard('axiom', { one_sentence: 'B' });
   assert.notEqual(cardJudgmentFingerprint(card1), cardJudgmentFingerprint(card2));
 });
 
 test('cardJudgmentFingerprint: ignores non-judgment fields', () => {
-  const { cardJudgmentFingerprint } = require('../src/project');
   const card1 = createCard('axiom', { one_sentence: 'A', notes: 'extra info', metadata: 'ignored' });
   const card2 = createCard('axiom', { one_sentence: 'A', notes: 'different', metadata: 'still ignored' });
   assert.equal(cardJudgmentFingerprint(card1), cardJudgmentFingerprint(card2));
+});
+
+test('checkHumanLockGate: detects judgment content changed after lock', () => {
+  const p = createProject('test');
+  let card = createCard('axiom', { one_sentence: 'Original', full_statement: 'Original.', why: 'Original.' });
+  card = transitionCard(card, 'revised', { by: 'tester' });
+  card = lockCard(card, {
+    by: 'tester', statement: 'Locked.',
+    checked: { applies_when: true, does_not_apply_when: true, failure_risk: true },
+  });
+  // Simulate post-lock edit: change a judgment field
+  card.fields.one_sentence = 'Modified after lock';
+  p.cards.push(card);
+
+  const gate = checkHumanLockGate(p);
+  // The fingerprint should differ
+  assert.ok(gate.issues.some(i => i.reason.includes('judgment fields changed')),
+    'Must detect judgment field modification after lock');
 });

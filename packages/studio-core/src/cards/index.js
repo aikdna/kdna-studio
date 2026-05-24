@@ -9,6 +9,8 @@
  *   - Audit trail management
  */
 
+const { cardJudgmentFingerprint } = require('../judgment-fields');
+
 const VALID_STATES = ['draft', 'revised', 'locked', 'tested', 'published', 'deprecated'];
 const CARD_TYPES = ['axiom', 'ontology', 'misunderstanding', 'boundary', 'self_check', 'risk', 'aesthetic', 'scenario', 'case'];
 
@@ -70,6 +72,7 @@ function lockCard(card, lockPayload) {
     at: new Date().toISOString(),
     statement: lockPayload.statement,
     checked: lockPayload.checked,
+    judgment_fingerprint: cardJudgmentFingerprint(lockedCard),
   };
 
   return transitionCard(lockedCard, 'locked', { by: lockPayload.by });
