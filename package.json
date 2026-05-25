@@ -1,8 +1,8 @@
 {
-  "name": "@aikdna/kdna-studio",
+  "name": "@aikdna/kdna-studio-monorepo",
   "version": "1.2.1",
   "description": "KDNA Studio — guided authoring environment for creating, testing, and publishing KDNA domain judgment packages.",
-  "private": false,
+  "private": true,
   "type": "commonjs",
   "license": "Apache-2.0",
   "repository": {
