@@ -7,11 +7,11 @@
 > npm install @aikdna/kdna-studio
 > ```
 
-**KDNA Studio is an open-source authoring core for turning human judgment into valid, testable, packageable KDNA domain assets.**
+**KDNA Studio turns raw human experience into AI-loadable cognitive kernels. AI may propose judgment candidates. Humans must confirm judgment. Only human-locked judgment can compile into KDNA.**
 
 It is not a one-click generator. It is a judgment extraction, validation, locking, testing, and publishing engine.
 
-KDNA Studio 是一个开源创作内核，用于把人的领域判断转化为合法、可测试、可打包、可发布的 KDNA 认知资产。它不是一键生成器，而是判断提取、校验、锁定、测试与发布引擎。
+KDNA Studio 是一个开源创作内核，用于把人的经验、洞察和偏好转化为 AI 可加载的认知内核。AI 可以提出候选判断，人必须确认判断，只有被人确认并锁定的判断才能编译成 KDNA。它不是一键生成器，而是判断提取、校验、锁定、测试与发布引擎。
 
 ---
 
