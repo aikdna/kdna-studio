@@ -1,4 +1,11 @@
-# KDNA Studio Core
+# KDNA Studio Monorepo
+
+> ⚠️ **This monorepo has been split.** The core authoring logic is now available as a standalone npm package: **`@aikdna/kdna-studio`** ([GitHub](https://github.com/aikdna/kdna-studio-core)).
+>
+> This repository retains the monorepo structure (studio-core, schemas, examples) for development history. For new integrations, use the standalone package:
+> ```bash
+> npm install @aikdna/kdna-studio
+> ```
 
 **KDNA Studio is an open-source authoring core for turning human judgment into valid, testable, packageable KDNA domain assets.**
 
