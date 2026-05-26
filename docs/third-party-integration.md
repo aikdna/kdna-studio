@@ -52,8 +52,8 @@ for (const [filename, content] of Object.entries(result.files)) {
 
 // 7. Validate with kdna-cli
 const { execFileSync } = require('child_process');
-execFileSync('kdna', ['validate', './output/']);
-execFileSync('kdna', ['pack', './output/']);
+execFileSync('kdna', ['dev', 'validate', './output/']);
+execFileSync('kdna', ['dev', 'pack', './output/']);
 ```
 
 ## Convenience Pipeline
@@ -145,19 +145,19 @@ The recommended stack:
 
 1. **Data layer**: `@aikdna/studio-core` (project model, cards, state machine)
 2. **Validation layer**: `@aikdna/kdna-core` (schema validation)
-3. **Distribution layer**: `@aikdna/kdna-cli` (validate, pack, sign, publish)
+3. **Distribution layer**: `@aikdna/kdna-cli` (dev validate, build, sign, publish)
 4. **UI layer**: Your choice (React, SwiftUI, Tauri, Electron)
-5. **License layer** (commercial): `.kdnae` encrypted containers + license management
+5. **License layer** (commercial): licensed `.kdna` encrypted entries + entitlement activation
 
 ## Testing Your Integration
 
 ```bash
 # Verify your tool's output
 npm install @aikdna/kdna-cli
-kdna validate ./output/
-kdna verify ./output/ --judgment
-kdna pack ./output/
-kdna inspect ./output/*.kdna --json
+kdna dev validate ./output/
+kdna publish ./output/ --output ./dist/output.kdna --check
+kdna verify ./dist/output.kdna --judgment
+kdna inspect ./dist/output.kdna --json
 ```
 
 ## Examples

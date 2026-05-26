@@ -1,6 +1,6 @@
 {
   "name": "@aikdna/kdna-studio-monorepo",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "KDNA Studio — guided authoring environment for creating, testing, and publishing KDNA domain judgment packages.",
   "private": true,
   "type": "commonjs",
@@ -21,10 +21,10 @@
     "test": "npm test --prefix packages/studio-core"
   },
   "dependencies": {
-    "@aikdna/kdna-core": "^0.3.0"
+    "@aikdna/kdna-core": "^0.5.0"
   },
   "devDependencies": {
-    "@aikdna/kdna-cli": "^0.16.0"
+    "@aikdna/kdna-cli": "^0.18.0"
   },
   "keywords": [
     "kdna",

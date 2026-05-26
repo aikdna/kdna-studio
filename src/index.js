@@ -6,7 +6,7 @@
  *   2. Interview Room — extract expert judgment
  *   3. Judgment Cards — structure into lockable KDNA elements
  *   4. Test Lab       — validate against real cases
- *   5. Export         — compile to .kdna / .kdnae container
+ *   5. Export         — compile to a signed .kdna asset
  *
  * Studio is NOT a replacement for kdna-cli. CLI handles runtime and
  * distribution; Studio handles creation and quality.

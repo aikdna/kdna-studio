@@ -117,7 +117,7 @@ console.log(`Readiness: ${readiness.grade} (score: ${readiness.score})`);
 
 // Validate
 try {
-  const v = execFileSync('kdna', ['validate', outDir], { encoding: 'utf8', timeout: 30000 });
+  const v = execFileSync('kdna', ['dev', 'validate', outDir], { encoding: 'utf8', timeout: 30000 });
   console.log(`Validate: pass`);
 } catch (e) {
   console.log(`Validate: (kdna not available — skipped)`);
@@ -125,7 +125,7 @@ try {
 
 // Pack
 try {
-  execFileSync('kdna', ['pack', outDir, '--output', __dirname], { encoding: 'utf8', timeout: 60000 });
+  execFileSync('kdna', ['dev', 'pack', outDir, '--output', __dirname], { encoding: 'utf8', timeout: 60000 });
   console.log(`Pack:     writing_judgment.kdna`);
 } catch (e) {
   console.log(`Pack:     (kdna not available — skipped)`);

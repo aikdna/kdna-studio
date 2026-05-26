@@ -22,7 +22,7 @@ These rules protect the integrity of the KDNA ecosystem. They are non-negotiable
 - Do NOT add new required KDNA JSON files beyond the 6 standard files
 - Do NOT rename or change the semantics of standard fields
 - Do NOT embed executable code or workflow steps in KDNA files
-- All compile output MUST pass `kdna validate` before merge
+- All compile output MUST pass `kdna dev validate` before merge
 
 ### 4. New fields must go through schema discussion
 
@@ -52,7 +52,7 @@ npm test
 - [ ] Examples in `examples/` still run correctly
 - [ ] No draft cards enter compile output
 - [ ] Human Lock is enforced on all locked cards
-- [ ] Compile output passes `kdna validate` (if applicable)
+- [ ] Compile output passes `kdna dev validate` (if applicable)
 - [ ] Stable API changes are documented in CHANGELOG
 - [ ] Schema changes are reflected in `packages/studio-schemas/`
 

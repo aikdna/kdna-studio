@@ -102,7 +102,7 @@ console.log(`   written to: ${outDir}/`);
 
 console.log('5. Validating with kdna...');
 try {
-  const v = execFileSync('kdna', ['validate', outDir], { encoding: 'utf8', timeout: 30000 });
+  const v = execFileSync('kdna', ['dev', 'validate', outDir], { encoding: 'utf8', timeout: 30000 });
   console.log(`   ✓ ${v.trim()}`);
 } catch (e) {
   console.log(`   (kdna CLI not available — skipping validation)`);
@@ -112,7 +112,7 @@ try {
 
 console.log('6. Packing to .kdna...');
 try {
-  const p = execFileSync('kdna', ['pack', outDir, '--output', __dirname], { encoding: 'utf8', timeout: 60000 });
+  const p = execFileSync('kdna', ['dev', 'pack', outDir, '--output', __dirname], { encoding: 'utf8', timeout: 60000 });
   console.log(`   ✓ ${p.trim()}`);
 } catch (e) {
   console.log(`   (kdna CLI not available — skipping pack)`);

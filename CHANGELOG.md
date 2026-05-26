@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3.0 (2026-05-27)
+
+**Asset-first authoring alignment**
+
+- Studio export language now targets a single signed `.kdna` asset.
+- Removed user-facing encrypted-extension wording from architecture and integration docs.
+- Third-party integration docs now use `kdna dev validate`, `kdna publish --output`, and `kdna verify <asset>.kdna`.
+- Dependency declarations updated for `@aikdna/kdna-core@^0.5.0` and `@aikdna/kdna-cli@^0.18.0` release line.
+
 ## v1.0.0 (2026-05-23)
 
 **Stable Authoring Kernel**
@@ -7,7 +16,7 @@
 KDNA Studio Core is now production-ready for third-party integration.
 
 - All SPEC-required fields in compile output (meta, file_count, reasoning_chains, measurement)
-- Compile output 100% passes `kdna validate`
+- Compile output 100% passes `kdna dev validate`
 - Human Lock enforced at code level — no bypass possible
 - 4-grade quality gate (draft → human_controlled → tested → publishable)
 - Governance module: risk_level (R0-R3), validateGovernance, KDNA_CARD.json generation

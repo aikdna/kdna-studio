@@ -8,8 +8,8 @@
 - **Validate cards** for anti-vagueness, anti-SOP, anti-straw-man patterns
 - **Run quality gates** with 4-grade readiness scoring
 - **Compile locked cards** into SPEC-compatible KDNA JSON files (6 files max)
-- **Validate output** with `kdna validate` (passes KDNA SPEC v1.0-rc)
-- **Pack output** into `.kdna` containers
+- **Validate output** with `kdna dev validate` (passes KDNA SPEC v1.0-rc)
+- **Build output** into signed `.kdna` assets
 - **Generate README** from card metadata
 - **Track provenance** with build IDs and content fingerprints
 - **Run A/B comparison** via `kdna compare` and produce Judgment Delta reports

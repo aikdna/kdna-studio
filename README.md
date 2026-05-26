@@ -68,7 +68,7 @@ Stage 1: Evidence Room   →  Import raw material; extract candidate patterns
 Stage 2: Interview Room  →  AI interviews the expert; extracts judgment
 Stage 3: Judgment Cards  →  Structure into lockable, verifiable cards
 Stage 4: Test Lab        →  Validate with A/B comparison against LLM
-Stage 5: Export          →  Compile → validate → pack → sign → publish
+Stage 5: Export          →  Compile → dev validate → build .kdna → sign → publish
 ```
 
 At every stage, the human is the authority. AI is only an interviewer, challenger, compiler, and evaluator — never the judge.
@@ -88,8 +88,8 @@ kdna studio readiness my_domain/studio.project.json
 # Compile locked cards → KDNA domain
 kdna studio compile my_domain/studio.project.json --out ./output/
 
-# Validate the compiled domain
-kdna validate ./output/
+# Validate the compiled dev source workspace
+kdna dev validate ./output/
 ```
 
 ## Repository Structure
@@ -107,7 +107,7 @@ kdna-studio/
         compile/         # Compile locked cards → KDNA JSON
         testlab/         # Test case model, comparison
         provenance/      # Build ID, fingerprints, audit trail
-        packaging/       # Pack .kdna / .kdnae adapters
+        packaging/       # Build signed .kdna assets
         versioning/      # Judgment diff, changelog
       tests/
     studio-schemas/      # JSON Schemas for all data models

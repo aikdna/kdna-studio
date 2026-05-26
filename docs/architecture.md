@@ -29,7 +29,7 @@ studio-core/
     compile/           Locked cards → KDNA JSON files
     testlab/           Test case model and comparison runner
     provenance/        Build metadata and content fingerprinting
-    packaging/         .kdna / .kdnae pack adapters
+    packaging/         signed .kdna asset builders
     versioning/        Judgment diff and changelog
     cli-bridge/        Call kdna-cli commands (validate, verify, pack)
 ```
@@ -100,9 +100,9 @@ Every data structure has a JSON Schema. The schema is the source of truth for wh
 ```js
 // studio-core calls kdna-cli for:
 const { execSync } = require('child_process');
-execSync('kdna validate ./output/');        // validate compiled domain
-execSync('kdna verify ./output/ --json');   // full verification
-execSync('kdna pack ./output/');            // create .kdna container
+execSync('kdna dev validate ./output/');    // validate compiled dev source
+execSync('kdna dev pack ./output/');        // build .kdna asset
+execSync('kdna verify ./dist/output.kdna --json'); // full asset verification
 execSync('kdna license generate ...');      // generate license
 ```
 

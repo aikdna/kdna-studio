@@ -18,7 +18,7 @@ node examples/minimal-domain/run.js
 3. Feynman Restatements → expert explains each card in simple terms
 4. Readiness Score     → quality gate evaluation
 5. Compile             → KDNA_Core.json + KDNA_Patterns.json + KDNA_Reasoning.json + KDNA_Evolution.json + kdna.json
-6. Validate            → kdna validate passes
+6. Validate            → kdna dev validate passes
 7. Pack                → .kdna container created
 8. README              → auto-generated from card metadata
 9. Provenance          → build ID + content fingerprint
