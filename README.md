@@ -4,8 +4,16 @@
 >
 > This repository retains the monorepo structure (studio-core, schemas, examples) for development history. For new integrations, use the standalone package:
 > ```bash
-> npm install @aikdna/kdna-studio
+> npm install -g @aikdna/kdna-studio
+> kdna-studio --help
 > ```
+
+This repository is historical and is not the canonical CLI or npm package. The
+current public authoring surfaces are:
+
+- `@aikdna/kdna-studio` from `aikdna/kdna-studio-core` — SDK plus `kdna-studio` CLI.
+- `kdna-studio-swift` — native Swift authoring kernel.
+- `kdna-cli` — runtime control plane for existing `.kdna` assets only.
 
 **KDNA Studio turns raw human experience into AI-loadable cognitive kernels. AI may propose judgment candidates. Humans must confirm judgment. Only human-locked judgment can compile into KDNA.**
 
@@ -68,7 +76,7 @@ Stage 1: Evidence Room   →  Import raw material; extract candidate patterns
 Stage 2: Interview Room  →  AI interviews the expert; extracts judgment
 Stage 3: Judgment Cards  →  Structure into lockable, verifiable cards
 Stage 4: Test Lab        →  Validate with A/B comparison against LLM
-Stage 5: Export          →  Compile → dev validate → build .kdna → sign → publish
+Stage 5: Export          →  Compile → validate → canonical .kdna → sign → publish
 ```
 
 At every stage, the human is the authority. AI is only an interviewer, challenger, compiler, and evaluator — never the judge.
@@ -77,19 +85,19 @@ At every stage, the human is the authority. AI is only an interviewer, challenge
 
 ```bash
 # Create a Studio project
-kdna studio scaffold my_domain
+kdna-studio create my_domain --name @yourscope/my_domain
 
-# Author judgment cards (edit card JSON files)
-# Lock cards when ready: human_lock.by, human_lock.statement required
+# Author judgment cards and Human Lock them
 
 # Check readiness
-kdna studio readiness my_domain/studio.project.json
+kdna-studio report my_domain
 
-# Compile locked cards → KDNA domain
-kdna studio compile my_domain/studio.project.json --out ./output/
+# Export a canonical .kdna asset
+kdna-studio export my_domain --out ./dist/my_domain.kdna --sign
 
-# Validate the compiled dev source workspace
-kdna dev validate ./output/
+# Runtime verification and publication happen after export
+kdna verify ./dist/my_domain.kdna --judgment
+kdna publish ./dist/my_domain.kdna
 ```
 
 ## Repository Structure
