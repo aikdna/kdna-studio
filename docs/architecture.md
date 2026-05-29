@@ -63,7 +63,7 @@ Studio Core exports pure functions. No SwiftUI, no React, no DOM dependencies. E
 
 ```js
 // Example: Studio Core API
-const { createProject, lockCard, compileDomain } = require('@aikdna/studio-core');
+const { createProject, lockCard, compileDomain } = require('@aikdna/kdna-studio-core');
 ```
 
 ### 2. Core delegates to kdna-cli

@@ -126,5 +126,5 @@ const {
   createFeynmanRestatement,  // Create Feynman entry
   evaluateRestatement,  // Score the restatement
   getLockAuditTrail,    // Return immutable audit log
-} = require('@aikdna/studio-core');
+} = require('@aikdna/kdna-studio-core');
 ```

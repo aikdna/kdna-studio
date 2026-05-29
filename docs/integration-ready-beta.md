@@ -40,7 +40,7 @@ These APIs follow semver. Breaking changes only in MAJOR releases.
 
 ## Recommended Integration Path
 
-1. `npm install @aikdna/studio-core`
+1. `npm install @aikdna/kdna-studio-core`
 2. Follow [third-party-integration.md](./third-party-integration.md)
 3. Run `node examples/minimal-domain/run.js` as a reference
 4. Use `createStudioPipeline()` for production code
@@ -69,7 +69,7 @@ Human Expert
    ↓
 Judgment Cards + Human Lock
    ↓
-@aikdna/studio-core
+@aikdna/kdna-studio-core
    ↓
 KDNA domain files
    ↓

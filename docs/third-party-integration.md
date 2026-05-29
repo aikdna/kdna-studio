@@ -1,15 +1,15 @@
 # Third-Party Integration Guide
 
-How to integrate `@aikdna/studio-core` into any app, tool, or platform that creates KDNA domains.
+How to integrate `@aikdna/kdna-studio-core` into any app, tool, or platform that creates KDNA domains.
 
 ## Quick Start
 
 ```bash
-npm install @aikdna/studio-core
+npm install @aikdna/kdna-studio-core
 ```
 
 ```js
-const { project, cards, compile, quality, pipeline } = require('@aikdna/studio-core');
+const { project, cards, compile, quality, pipeline } = require('@aikdna/kdna-studio-core');
 
 // 1. Create a project
 const p = project.createProject('my_domain', 'domain', {
@@ -61,7 +61,7 @@ execFileSync('kdna', ['dev', 'pack', './output/']);
 For simpler integration, use the official pipeline:
 
 ```js
-const { pipeline } = require('@aikdna/studio-core');
+const { pipeline } = require('@aikdna/kdna-studio-core');
 
 const p = pipeline.createStudioPipeline(project);
 const result = p.runAll();
@@ -109,7 +109,7 @@ Studio Core is pure logic — no UI dependencies. Use with any framework:
 
 **React:**
 ```jsx
-import { createStudioPipeline } from '@aikdna/studio-core';
+import { createStudioPipeline } from '@aikdna/kdna-studio-core';
 
 function CompileButton({ project }) {
   const handleCompile = () => {
@@ -128,22 +128,22 @@ function CompileButton({ project }) {
 ```swift
 // Call kdna-cli via Process
 // Studio Core logic accessed through kdna-cli commands
-// Or use @aikdna/studio-core via JavaScriptCore bridge
+// Or use @aikdna/kdna-studio-core via JavaScriptCore bridge
 ```
 
 **Tauri/Electron:**
 ```js
 // Install as npm dependency, call from renderer via IPC
 const { compileDomain } = window.__TAURI__.invoke ?
-  await import('@aikdna/studio-core') :
-  require('@aikdna/studio-core');
+  await import('@aikdna/kdna-studio-core') :
+  require('@aikdna/kdna-studio-core');
 ```
 
 ## Building a Complete Authoring App
 
 The recommended stack:
 
-1. **Data layer**: `@aikdna/studio-core` (project model, cards, state machine)
+1. **Data layer**: `@aikdna/kdna-studio-core` (project model, cards, state machine)
 2. **Validation layer**: `@aikdna/kdna-core` (schema validation)
 3. **Distribution layer**: `@aikdna/kdna-cli` (dev validate, build, sign, publish)
 4. **UI layer**: Your choice (React, SwiftUI, Tauri, Electron)

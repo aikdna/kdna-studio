@@ -1,7 +1,8 @@
 {
-  "name": "@aikdna/studio-core",
+  "name": "@aikdna/kdna-studio-core-archive",
+  "private": true,
   "version": "1.3.0",
-  "description": "KDNA Studio Core — pure logic library for authoring, validating, and compiling KDNA domain judgment packages.",
+  "description": "Archived in-repo Studio Core copy. Use @aikdna/kdna-studio-core.",
   "type": "commonjs",
   "main": "src/index.js",
   "license": "Apache-2.0",
